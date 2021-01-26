@@ -7,22 +7,22 @@ public class Fork {
     }
 
     public synchronized void take() {
-        while (taken) {
-            try {
-                wait();
-            } catch (InterruptedException e) {
-            }
-        }
+//        while (taken) {
+//            try {
+//                wait();
+//            } catch (InterruptedException e) {
+//            }
+//        }
         taken = true;
     }
 
     public synchronized void put() {
-        while (!taken) {
-            try {
-                wait();
-            } catch (InterruptedException e) {
-            }
-        }
+//        while (!taken) {
+//            try {
+//                wait();
+//            } catch (InterruptedException e) {
+//            }
+//        }
         taken = false;
     }
 }

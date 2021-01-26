@@ -15,6 +15,10 @@ public class Philosopher implements Runnable {
     public void run() {
         Random random = new Random();
         while (true){
+            // think
+            try {
+                Thread.sleep(random.nextInt(30000));
+            } catch (InterruptedException e) {}
             if (!leftFork.taken && !rightFork.taken){
                 leftFork.take();
                 rightFork.take();
@@ -26,10 +30,7 @@ public class Philosopher implements Runnable {
                 leftFork.put();
                 rightFork.put();
                 System.out.println("Philosopher " + ID + " has put down forks " + leftFork.ID + " and " + rightFork.ID);
-                // think
-                try {
-                    Thread.sleep(random.nextInt(10000));
-                } catch (InterruptedException e) {}
+
 
             }
         }
