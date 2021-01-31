@@ -1,6 +1,9 @@
+import java.io.IOException;
+
 public class Main {
-    public static void main(String[] args) {
-        int num_threads = 5;
+    public static void main(String[] args) throws IOException {
+    Grid grid = new Grid(9);
+    grid.loadGrid("src/test/sample_grid.txt");
 
 //        int philosopherCount = 5;
 //        Fork[] forks = new Fork[philosopherCount];
