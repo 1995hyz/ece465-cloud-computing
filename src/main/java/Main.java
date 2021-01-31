@@ -2,9 +2,10 @@ import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-    Grid grid = new Grid(9);
+    Grid grid = new Grid(3);
     grid.loadGrid("src/test/sample_grid.txt");
 
+    return;
 //        int philosopherCount = 5;
 //        Fork[] forks = new Fork[philosopherCount];
 //        for (int i = 0; i< philosopherCount; i++) {

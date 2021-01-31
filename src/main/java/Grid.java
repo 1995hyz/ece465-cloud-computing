@@ -1,3 +1,6 @@
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -5,12 +8,16 @@ import java.io.IOException;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
 public class Grid {
+
+    private static Logger logger = LogManager.getLogger(Grid.class);
+
     private final int dim;
     private final int subDim;
     private Integer[][] grid;
@@ -34,13 +41,14 @@ public class Grid {
     public void loadGrid(String filePath) throws IOException {
         Scanner sc = new Scanner(new BufferedReader(new FileReader(filePath)));
         while(sc.hasNextLine()) {
-            for (int i=0; i<this.dim; i++) {
+            for (int i=0; i<this.dim && sc.hasNextLine(); i++) {
                 String[] line = sc.nextLine().trim().split(",");
                 for (int j=0; j<line.length; j++) {
                     this.grid[i][j] = Integer.parseInt(line[j]);
                 }
             }
         }
+        fillPossibleValuesOfGrid();
     }
 
     public int getGridCell(int row, int col) {
@@ -49,7 +57,9 @@ public class Grid {
 
     public void setGridCell(int row, int col, int val) {
         this.grid[row][col] = val;
-        
+        String key = Integer.valueOf(row).toString() + Integer.valueOf(col).toString();
+        this.possibleValues.replace(key, new ArrayList<>(Collections.singletonList(val)));
+        reduce(row, col, val);
     }
 
     public Map<String, List<Integer>> getGridRowPossibleValues(int rowIndex) {
@@ -103,11 +113,11 @@ public class Grid {
             }
         }
         // Remove the value from the possible list of the cells in the same sub-grid
-        int rowSubGridPosition = rowIndex / this.subDim;
-        int colSubGridPosition = colIndex / this.subDim;
+        int rowSubGridPosition = (rowIndex / this.subDim) * this.subDim;
+        int colSubGridPosition = (colIndex / this.subDim) * this.subDim;
         for(int i=0; i<this.subDim; i++) {
             for(int j=0; j<this.subDim; j++) {
-                if ( i!= rowIndex || j!=colIndex ) {
+                if ( (rowSubGridPosition+i)!= rowIndex || (colSubGridPosition+j)!=colIndex ) {
                     String key = Integer.valueOf(rowSubGridPosition+i).toString() + Integer.valueOf(colSubGridPosition+j).toString();
                     this.possibleValues.get(key).remove(removeValue);
                 }
@@ -118,7 +128,10 @@ public class Grid {
     private void fillPossibleValuesOfGrid() {
         for (int i=0; i<this.dim; i++) {
             for (int j=0; j<this.dim; j++) {
-
+                if (this.grid[i][j] != 0) {
+                    logger.debug(String.format("Filling position %s", Integer.valueOf(i).toString() + Integer.valueOf(j).toString()));
+                    setGridCell(i, j, this.grid[i][j]);
+                }
             }
         }
     }
