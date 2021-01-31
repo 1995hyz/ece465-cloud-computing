@@ -5,14 +5,9 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
 
 public class Grid {
 
@@ -80,6 +75,24 @@ public class Grid {
         return colPossibleValues;
     }
 
+    public Map<String, List<Integer>> getSubGridPossibleValues(int rowIndex, int colIndex) {
+        if (rowIndex >= this.subDim || colIndex >= this.subDim) {
+            logger.error(String.format("Grid::getSubGridPossibleValues:Cannot get sub-grid with row '%s' and column '%s'" +
+                    " when sub-grid dimension is '%s'", rowIndex, colIndex, this.subDim));
+            throw new IllegalArgumentException("Sub-grid index exceeds sub-grid dimension");
+        }
+        Map<String, List<Integer>> subGridPossibleValues = new HashMap<>();
+        int rowSubGridPosition = (rowIndex / this.subDim) * this.subDim;
+        int colSubGridPosition = (colIndex / this.subDim) * this.subDim;
+        for(int i=0; i<this.subDim; i++) {
+            for(int j=0; j<this.subDim; j++) {
+                    String key = Integer.valueOf(rowSubGridPosition+i).toString() + Integer.valueOf(colSubGridPosition+j).toString();
+                    subGridPossibleValues.put(key, this.possibleValues.get(key));
+            }
+        }
+        return subGridPossibleValues;
+    }
+
     public Integer[] getGridColumn(int colIndex) {
         Integer[] col = new Integer[this.dim];
         for(int i=0; i< this.dim; i++) {
@@ -135,5 +148,50 @@ public class Grid {
                 }
             }
         }
+    }
+
+    /**
+     * Validate the grid by scanning each row, each column and each sub-grid to make sure that, for the cells that only
+     * have one unique solution, the solution is also unique among others.
+     */
+    private boolean validateGrid() {
+        for (int i=0; i<this.dim; i++) {
+            Map<String, List<Integer>> row = this.getGridRowPossibleValues(i);
+            // List all cell values that only have one possible value
+            List<Integer> rowUniqueList = row.values().stream()
+                    .filter(e -> e.size() == 1)
+                    .map(e -> e.get(0))
+                    .collect(Collectors.toList());
+            Set<Integer> rowUniqueSet = new HashSet<>(rowUniqueList);
+            // If the set size if smaller than the list size, this means the list contains value that is duplicated
+            if (rowUniqueList.size() > rowUniqueSet.size()) {
+                return false;
+            }
+        }
+        for (int i=0; i<this.dim; i++) {
+            Map<String, List<Integer>> column = this.getGridColumnPossibleValues(i);
+            List<Integer> columnUniqueList = column.values().stream()
+                    .filter(e -> e.size() == 1)
+                    .map(e -> e.get(0))
+                    .collect(Collectors.toList());
+            Set<Integer> columnUniqueSet = new HashSet<>(columnUniqueList);
+            if (columnUniqueList.size() > columnUniqueSet.size()) {
+                return false;
+            }
+        }
+        for (int i=0; i<this.subDim; i++) {
+            for(int j=0; j<this.subDim; j++) {
+                Map<String, List<Integer>> subGrid = this.getSubGridPossibleValues(i, j);
+                List<Integer> subGridUniqueList = subGrid.values().stream()
+                        .filter(e -> e.size() == 1)
+                        .map(e -> e.get(0))
+                        .collect(Collectors.toList());
+                Set<Integer> subGridUniqueSet = new HashSet<>(subGridUniqueList);
+                if (subGridUniqueList.size() > subGridUniqueSet.size()) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }

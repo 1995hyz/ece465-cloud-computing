@@ -1,5 +1,8 @@
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,10 +10,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+@RunWith(MockitoJUnitRunner.class)
 public class GridTest {
 
+    @Mock
+    Grid grid = new Grid(2);
+
     @Test
-    public void test_reduceCellPossibleValues_ShouldSucceed() throws Throwable {
+    public void test_reduceCellPossibleValues_shouldSucceed() throws Throwable {
         int subDim = 2;
         int dim = subDim * subDim;
         int testRowIndex = 1;
@@ -34,4 +41,10 @@ public class GridTest {
                     e.getValue()), e.getValue(), removedPossibleValues);
         });
     }
+
+    @Test
+    public void test_validateGrid_shouldSucceed() {
+
+    }
+
 }
