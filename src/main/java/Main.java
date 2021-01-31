@@ -1,20 +1,18 @@
 import java.io.IOException;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-    Grid grid = new Grid(3);
-    grid.loadGrid("src/test/sample_grid.txt");
-
-    return;
-//        int philosopherCount = 5;
-//        Fork[] forks = new Fork[philosopherCount];
-//        for (int i = 0; i< philosopherCount; i++) {
-//            forks[i] = new Fork(i+1);
-//        }
-//        (new Thread(new Solver(1,forks[4],forks[0]))).start();
-//        (new Thread(new Solver(2,forks[0],forks[1]))).start();
-//        (new Thread(new Solver(3,forks[1],forks[2]))).start();
-//        (new Thread(new Solver(4,forks[2],forks[3]))).start();
-//        (new Thread(new Solver(5,forks[3],forks[4]))).start();
+        Grid grid = new Grid(9);
+        grid.loadGrid("src/test/sample_grid.txt");
+        BlockingQueue<Grid> fringe = null;
+        BlockingQueue<Grid> explored_grids = null;
+        int num_threads = 5;
+        AtomicInteger threads_waiting = new AtomicInteger(0);
+        for (int i = 0; i < num_threads; i++){
+            (new Thread(new Solver(i+1, fringe, explored_grids, grid, threads_waiting, num_threads))).start();
+        }
+        return;
     }
 }

@@ -45,6 +45,7 @@ public class Grid {
                 String[] line = sc.nextLine().trim().split(",");
                 for (int j=0; j<line.length; j++) {
                     this.grid[i][j] = Integer.parseInt(line[j]);
+                    System.out.println(line[j]);
                 }
             }
         }

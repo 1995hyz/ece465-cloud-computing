@@ -1,60 +1,46 @@
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 public class Solver implements Runnable {
-    private int ID;
-    private static Logger logger = LogManager.getLogger(Solver.class);
-    protected BlockingQueue<int[][]> fringe;
-    protected BlockingQueue<int[][]> explored_grids;
-    private int[][] grid;
-    private int dim = 9;
+    private final int ID;
+    private static final Logger logger = LogManager.getLogger(Solver.class);
+    protected BlockingQueue<Grid> fringe;
+    protected BlockingQueue<Grid> explored_grids;
+    private Grid grid;
+    private AtomicInteger threads_waiting;
+    int num_threads;
+    private Grid tempGrid;
 
 
-
-
-    public Solver(int ID, BlockingQueue<int[][]> fringe, BlockingQueue<int[][]> explored_grids, int[][] grid) {
+    public Solver(int ID, BlockingQueue<Grid> fringe, BlockingQueue<Grid> explored_grids, Grid grid,
+                  AtomicInteger threads_waiting, int num_threads) {
         this.ID = ID;
         this.fringe = fringe;
         this.explored_grids = explored_grids;
         this.grid = grid;
+        this.threads_waiting = threads_waiting;
+        this.num_threads = num_threads;
     }
 
     public void run() {
-//        Random random = new Random();
-//        while (true){
-//            // think
-//            try {
-//                Thread.sleep(random.nextInt(30000));
-//            } catch (InterruptedException e) {
-//                logger.info(String.format("Solver %s thinking has been interrupted.", Integer.toString(this.ID)));
-//            }
-//            if (!leftFork.isTaken() && !rightFork.isTaken()){
-//                leftFork.take();
-//                rightFork.take();
-//                System.out.println("Solver " + ID + " has picked up forks " + leftFork.getID() + " and " + rightFork.getID());
-//                // eat
-//                try {
-//                    Thread.sleep(random.nextInt(10000));
-//                } catch (InterruptedException e) {
-//                    logger.info(String.format("Solver %s eating has been interrupted.", Integer.toString(this.ID)));
-//                }
-//                leftFork.put();
-//                rightFork.put();
-//                System.out.println("Solver " + ID + " has put down forks " + leftFork.getID() + " and " + rightFork.getID());
-//
-//
-//            }
-//        }
-    }
-//    public int[][] reduce(Pair<Integer, Integer> index, int value, int[][] grid){
-////        Integer row = index.getRow();
-////        Integer col = index.getCol();
-////        // ...
-////        return grid;
-//    }
-//    public Pair<Pair<Integer, Integer>, Integer> getMinPossibleValues(int[][] grid_unsolved){
-//
-//    }
+        while (threads_waiting.get() < num_threads){
+            while (fringe.isEmpty()){
+                threads_waiting.incrementAndGet();
+                try {
+                    Thread.sleep(30000);
+                } catch (InterruptedException e) {
+                    logger.info(String.format("Solver %s sleeping has been interrupted.", Integer.toString(this.ID)));
+                }
+                threads_waiting.decrementAndGet();
+            }
+            try {
+                tempGrid = fringe.take();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
 
+    }
 }
