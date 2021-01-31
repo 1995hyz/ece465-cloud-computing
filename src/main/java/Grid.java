@@ -38,7 +38,6 @@ public class Grid {
                 String[] line = sc.nextLine().trim().split(",");
                 for (int j=0; j<line.length; j++) {
                     this.grid[i][j] = Integer.parseInt(line[j]);
-                    //System.out.println(line[j]);
                 }
             }
         }
@@ -50,6 +49,7 @@ public class Grid {
 
     public void setGridCell(int row, int col, int val) {
         this.grid[row][col] = val;
+        
     }
 
     public Map<String, List<Integer>> getGridRowPossibleValues(int rowIndex) {
@@ -78,7 +78,15 @@ public class Grid {
         return col;
     }
 
+    /**
+     * Take a value and the indexes of the value and reduce the possible values of the cells that are
+     * in the same row, column and sub-grid.
+     * @param rowIndex Row index of the value, from 0 to the dimension of the grid
+     * @param colIndex Column index of the value, from 0 to the dimension of the grid
+     * @param value Cell value that should be removed from possible values lists
+     */
     public void reduce(int rowIndex, int colIndex, int value) {
+        // The Integer boxing is needed to work with list.remove() to remove by value
         Integer removeValue = Integer.valueOf(value);
         // Remove the value from the possible list of the same row
         for(int i=0; i<this.dim; i++) {
@@ -107,4 +115,11 @@ public class Grid {
         }
     }
 
+    private void fillPossibleValuesOfGrid() {
+        for (int i=0; i<this.dim; i++) {
+            for (int j=0; j<this.dim; j++) {
+
+            }
+        }
+    }
 }
