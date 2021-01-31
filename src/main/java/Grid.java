@@ -2,34 +2,46 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
 public class Grid {
     private final int dim;
-    private int[][] grid;
+    private final int subDim;
+    private Integer[][] grid;
     private Map<String, List<Integer>> possibleValues;
 
-    public Grid (int dim){
-        this.dim = dim;
-//        grid = new int[dim][dim];
-
+    public Grid (int subDimension){
+        this.subDim = subDimension;
+        this.dim = subDimension * subDimension;
+        IntStream intStream = IntStream.range(1, dim+1);
+        List<Integer> initialPossibleValues = intStream.boxed().collect(Collectors.toList());
+        grid = new Integer[dim][dim];
+        possibleValues = new HashMap<>();
+        for (int i=0; i<this.dim; i++) {
+            for (int j=0; j<this.dim; j++) {
+                String key = Integer.valueOf(i).toString() + Integer.valueOf(j).toString();
+                possibleValues.put(key, new ArrayList<>(initialPossibleValues));
+            }
+        }
     }
 
     public void loadGrid(String filePath) throws IOException {
         Scanner sc = new Scanner(new BufferedReader(new FileReader(filePath)));
-        int [][] newGrid = new int[dim][dim];
         while(sc.hasNextLine()) {
-            for (int i=0; i<newGrid.length; i++) {
+            for (int i=0; i<this.dim; i++) {
                 String[] line = sc.nextLine().trim().split(",");
                 for (int j=0; j<line.length; j++) {
-                    newGrid[i][j] = Integer.parseInt(line[j]);
+                    this.grid[i][j] = Integer.parseInt(line[j]);
                     //System.out.println(line[j]);
                 }
             }
         }
-        this.grid = newGrid;
     }
 
     public int getGridCell(int row, int col) {
@@ -40,13 +52,59 @@ public class Grid {
         this.grid[row][col] = val;
     }
 
-    public void getGridColumn(int colIndex) {
-
+    public Map<String, List<Integer>> getGridRowPossibleValues(int rowIndex) {
+        Map<String, List<Integer>> rowPossibleValues = new HashMap<>();
+        for (int i=0; i<this.dim; i++) {
+            String key = Integer.valueOf(rowIndex).toString() + Integer.valueOf(i).toString();
+            rowPossibleValues.put(key, this.possibleValues.get(key));
+        }
+        return rowPossibleValues;
     }
 
-    public void reduce(int rowIndex, int colIndex, int val) {
-        int[] row = this.grid[rowIndex];
+    public Map<String, List<Integer>> getGridColumnPossibleValues(int colIndex) {
+        Map<String, List<Integer>> colPossibleValues = new HashMap<>();
+        for (int i=0; i<this.dim; i++) {
+            String key = Integer.valueOf(i).toString() + Integer.valueOf(colIndex).toString();
+            colPossibleValues.put(key, this.possibleValues.get(key));
+        }
+        return colPossibleValues;
+    }
 
+    public Integer[] getGridColumn(int colIndex) {
+        Integer[] col = new Integer[this.dim];
+        for(int i=0; i< this.dim; i++) {
+            col[i] = this.getGridCell(i, colIndex);
+        }
+        return col;
+    }
+
+    public void reduce(int rowIndex, int colIndex, int value) {
+        Integer removeValue = Integer.valueOf(value);
+        // Remove the value from the possible list of the same row
+        for(int i=0; i<this.dim; i++) {
+            if (i != colIndex) {
+                String key = Integer.valueOf(rowIndex).toString() + Integer.valueOf(i).toString();
+                this.possibleValues.get(key).remove(removeValue);
+            }
+        }
+        // Remove the value from the possible list of the same column
+        for(int i=0; i<this.dim; i++) {
+            if( i != rowIndex) {
+                String key = Integer.valueOf(i).toString() + Integer.valueOf(rowIndex).toString();
+                this.possibleValues.get(key).remove(removeValue);
+            }
+        }
+        // Remove the value from the possible list of the cells in the same sub-grid
+        int rowSubGridPosition = rowIndex / this.subDim;
+        int colSubGridPosition = colIndex / this.subDim;
+        for(int i=0; i<this.subDim; i++) {
+            for(int j=0; j<this.subDim; j++) {
+                if ( i!= rowIndex || j!=colIndex ) {
+                    String key = Integer.valueOf(rowSubGridPosition+i).toString() + Integer.valueOf(colSubGridPosition+j).toString();
+                    this.possibleValues.get(key).remove(removeValue);
+                }
+            }
+        }
     }
 
 }
