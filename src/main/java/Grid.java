@@ -1,5 +1,10 @@
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 public class Grid {
     private final int dim;
@@ -8,20 +13,23 @@ public class Grid {
 
     public Grid (int dim){
         this.dim = dim;
-        grid = new int[dim][dim];
+//        grid = new int[dim][dim];
 
     }
 
-    public void loadGrid(String filePath) {
-
-        // 0,1,0
-        // 2,0,0
-        // 0,0,0
-        // Load file
-
-        // Parse file
-        // Fill grid
-
+    public void loadGrid(String filePath) throws IOException {
+        Scanner sc = new Scanner(new BufferedReader(new FileReader(filePath)));
+        int [][] newGrid = new int[dim][dim];
+        while(sc.hasNextLine()) {
+            for (int i=0; i<newGrid.length; i++) {
+                String[] line = sc.nextLine().trim().split(",");
+                for (int j=0; j<line.length; j++) {
+                    newGrid[i][j] = Integer.parseInt(line[j]);
+                    //System.out.println(line[j]);
+                }
+            }
+        }
+        this.grid = newGrid;
     }
 
     public int getGridCell(int row, int col) {
