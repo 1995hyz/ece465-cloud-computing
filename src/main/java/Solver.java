@@ -25,22 +25,22 @@ public class Solver implements Runnable {
     }
 
     public void run() {
-        while (threads_waiting.get() < num_threads){
-            while (fringe.isEmpty()){
-                threads_waiting.incrementAndGet();
-                try {
-                    Thread.sleep(30000);
-                } catch (InterruptedException e) {
-                    logger.info(String.format("Solver %s sleeping has been interrupted.", Integer.toString(this.ID)));
-                }
-                threads_waiting.decrementAndGet();
-            }
-            try {
-                tempGrid = fringe.take();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+//        while (threads_waiting.get() < num_threads){
+//            while (fringe.isEmpty()){
+//                threads_waiting.incrementAndGet();
+//                try {
+//                    Thread.sleep(30000);
+//                } catch (InterruptedException e) {
+//                    logger.info(String.format("Solver %s sleeping has been interrupted.", Integer.toString(this.ID)));
+//                }
+//                threads_waiting.decrementAndGet();
+//            }
+//            try {
+//                tempGrid = fringe.take();
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        }
 
     }
 }

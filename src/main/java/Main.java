@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        Grid grid = new Grid(9);
+        Grid grid = new Grid(3);
         grid.loadGrid("src/test/sample_grid.txt");
         BlockingQueue<Grid> fringe = null;
         BlockingQueue<Grid> explored_grids = null;

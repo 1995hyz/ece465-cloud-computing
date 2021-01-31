@@ -128,6 +128,7 @@ public class Grid {
     private void fillPossibleValuesOfGrid() {
         for (int i=0; i<this.dim; i++) {
             for (int j=0; j<this.dim; j++) {
+                System.out.println(i + " " + j + " " + dim);
                 if (this.grid[i][j] != 0) {
                     logger.debug(String.format("Filling position %s", Integer.valueOf(i).toString() + Integer.valueOf(j).toString()));
                     setGridCell(i, j, this.grid[i][j]);
