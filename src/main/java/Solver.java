@@ -52,8 +52,8 @@ public class Solver implements Runnable {
             logger.debug(String.format("indexKey: %s",indexKey));
             logger.debug(String.format("Number of possible values: %d", values.size()));
             Integer testValue = values.get(0);
-            int rowIndex = indexKey.charAt(0);
-            int colIndex = indexKey.charAt(1);
+            int rowIndex = indexKey.charAt(0) - 48;
+            int colIndex = indexKey.charAt(1) - 48;
             tempGrid.reduce(rowIndex, colIndex, testValue);
             logger.debug(String.format("Reduced grid at row %d and col %d given value %d",rowIndex,colIndex,testValue));
             if(!checkExploredGrids(tempGrid,explored_grids)){
