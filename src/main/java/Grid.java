@@ -247,5 +247,17 @@ public class Grid {
         }
     }
 
+    public boolean isSolution(){
+        for(int i = 0; i < this.dim; i++){
+            for(int j = 0; j < this.dim; j++){
+                String key = Integer.valueOf(i).toString() + Integer.valueOf(j).toString();
+                if(this.possibleValues.get(key).size() != 1){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
 
 }
