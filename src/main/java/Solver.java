@@ -2,6 +2,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
@@ -11,24 +12,24 @@ public class Solver implements Runnable {
     private static final Logger logger = LogManager.getLogger(Solver.class);
     protected BlockingQueue<Grid> fringe;
     protected BlockingQueue<Grid> explored_grids;
-    private Grid grid;
     private AtomicInteger threads_waiting;
+    private AtomicBoolean complete;
     int num_threads;
     private Grid tempGrid;
 
 
-    public Solver(int ID, BlockingQueue<Grid> fringe, BlockingQueue<Grid> explored_grids, Grid grid,
-                  AtomicInteger threads_waiting, int num_threads) {
+    public Solver(int ID, BlockingQueue<Grid> fringe, BlockingQueue<Grid> explored_grids,
+                  AtomicInteger threads_waiting, int num_threads, AtomicBoolean complete) {
         this.ID = ID;
         this.fringe = fringe;
         this.explored_grids = explored_grids;
-        this.grid = grid;
         this.threads_waiting = threads_waiting;
         this.num_threads = num_threads;
+        this.complete = complete;
     }
 
     public void run() {
-        while (threads_waiting.get() < num_threads) {
+        while (threads_waiting.get() < num_threads && !complete.get()) {
             while (fringe.isEmpty()) {
                 threads_waiting.incrementAndGet();
                 try {
@@ -72,6 +73,9 @@ public class Solver implements Runnable {
                 }
             }
         }
+        System.out.println("No solution can be found for the provided grid.");
+        complete.set(true);
+        complete.notifyAll();
     }
 
     private boolean checkExploredGrids(Grid tempGrid, BlockingQueue<Grid> explored_grids){
