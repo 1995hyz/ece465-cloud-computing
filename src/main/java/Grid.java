@@ -154,7 +154,7 @@ public class Grid {
      * Validate the grid by scanning each row, each column and each sub-grid to make sure that, for the cells that only
      * have one unique solution, the solution is also unique among others.
      */
-    private boolean validateGrid() {
+    public boolean validateGrid() {
         for (int i=0; i<this.dim; i++) {
             Map<String, List<Integer>> row = this.getGridRowPossibleValues(i);
             // List all cell values that only have one possible value
@@ -193,5 +193,27 @@ public class Grid {
             }
         }
         return true;
+    }
+
+    /**
+     * Find the next cell candidate to solve the grid. The index of the cell which has the minimum size of possible
+     * values will be returned
+     * @return Index string of the candidate cell. The string is in two-digit format. Fist digit is the row index and
+     * second digit is the column index
+     */
+    public String findNextIndexToSolveGrid() {
+        int minimumPossibleValue = 9;
+        String minimumPossibleValueKey = null;
+        for (int i=0; i<this.dim; i++) {
+            for (int j=0; j<this.dim; j++) {
+                String key = Integer.valueOf(i).toString() + Integer.valueOf(j).toString();
+                int possibleValueSize = this.possibleValues.get(key).size();
+                if (possibleValueSize <= minimumPossibleValue) {
+                    minimumPossibleValueKey = key;
+                    minimumPossibleValue = possibleValueSize;
+                }
+            }
+        }
+        return minimumPossibleValueKey;
     }
 }
