@@ -214,7 +214,7 @@ public class Grid implements Serializable {
             for (int j=0; j<this.dim; j++) {
                 String key = Integer.valueOf(i).toString() + Integer.valueOf(j).toString();
                 int possibleValueSize = this.possibleValues.get(key).size();
-                if (possibleValueSize <= minimumPossibleValue) {
+                if (possibleValueSize > 1 && possibleValueSize <= minimumPossibleValue) {
                     minimumPossibleValueKey = key;
                     minimumPossibleValue = possibleValueSize;
                 }
