@@ -234,4 +234,18 @@ public class Grid {
         return true;
     }
 
+    public void printResult(){
+        for(int i = 0; i < this.dim; i++){
+            for(int j = 0; j < this.dim; j++){
+                if(j == this.dim -1){
+                    System.out.println(this.grid[i][j]);
+                }
+                else{
+                    System.out.print(this.grid[i][j] + ",");
+                }
+            }
+        }
+    }
+
+
 }
