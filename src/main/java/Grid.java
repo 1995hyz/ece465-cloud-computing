@@ -1,15 +1,16 @@
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class Grid {
+public class Grid implements Serializable {
 
     private static Logger logger = LogManager.getLogger(Grid.class);
 
@@ -261,5 +262,7 @@ public class Grid {
         return true;
     }
 
-
+    public Grid copy() {
+        return SerializationUtils.clone(this);
+    }
 }

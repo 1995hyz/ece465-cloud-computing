@@ -41,6 +41,7 @@ public class Solver implements Runnable {
                     threads_waiting.decrementAndGet();
                 }
             }
+
             try {
                 tempGrid = fringe.take();
             } catch (InterruptedException e) {
@@ -56,7 +57,7 @@ public class Solver implements Runnable {
             int colIndex = Character.getNumericValue(indexKey.charAt(1));
             tempGrid.reduce(rowIndex, colIndex, testValue);
             logger.debug(String.format("Reduced grid at row %d and col %d given value %d",rowIndex,colIndex,testValue));
-            if(!checkExploredGrids(tempGrid,explored_grids)){
+            if(!checkExploredGrids(tempGrid, explored_grids)){
                 if (tempGrid.validateGrid()) {
                     if(tempGrid.isSolution()){
                         tempGrid.printResult();
@@ -64,8 +65,7 @@ public class Solver implements Runnable {
                             complete.set(true);
                             complete.notifyAll();
                         }
-                    }
-                    else{
+                    } else {
                         try {
                             fringe.put(tempGrid);
                         } catch (InterruptedException e) {
