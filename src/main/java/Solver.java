@@ -1,4 +1,3 @@
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -50,8 +49,6 @@ public class Solver implements Runnable {
             String indexKey = tempGrid.findNextIndexToSolveGrid();
             Map<String, List<Integer>> possibleValues = tempGrid.getPossibleValues();
             List<Integer> values = possibleValues.get(indexKey);
-//            logger.debug(String.format("indexKey: %s",indexKey));
-//            logger.debug(String.format("Number of possible values: %d", values.size()));
 
             for (int value : values){
                 int rowIndex = Character.getNumericValue(indexKey.charAt(0));
