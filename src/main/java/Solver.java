@@ -66,7 +66,7 @@ public class Solver implements Runnable {
                 int colIndex = Character.getNumericValue(indexKey.charAt(1));
                 Grid newGrid = tempGrid.copy();
                 newGrid.reduce(rowIndex, colIndex, value);
-//                logger.debug(String.format("Reduced grid at row %d and col %d given value %d",rowIndex,colIndex,value));
+                logger.debug(String.format("Reduced grid at row %d and col %d given value %d",rowIndex,colIndex,value));
                 if(!checkExploredGrids(newGrid, explored_grids)){
                     if (newGrid.validateGrid()) {
                         if(newGrid.isSolution()){
