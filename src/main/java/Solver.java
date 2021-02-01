@@ -53,17 +53,24 @@ public class Solver implements Runnable {
             tempGrid.reduce(rowIndex, colIndex, testValue);
             if(!checkExploredGrids(tempGrid,explored_grids)){
                 if (tempGrid.validateGrid()) {
-                    try {
-                        fringe.put(tempGrid);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                    if(tempGrid.isSolution()){
+                        tempGrid.printResult();
+                        complete.set(true);
+                        complete.notifyAll();
                     }
-                    try {
-                        explored_grids.put(tempGrid);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                    else{
+                        try {
+                            fringe.put(tempGrid);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        try {
+                            explored_grids.put(tempGrid);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        threads_waiting.notifyAll();
                     }
-                    threads_waiting.notifyAll();
                 } else {
                     try {
                         explored_grids.put(tempGrid);
