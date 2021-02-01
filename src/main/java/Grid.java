@@ -150,7 +150,7 @@ public class Grid implements Serializable {
         for (int i=0; i<this.dim; i++) {
             for (int j=0; j<this.dim; j++) {
                 if (this.grid[i][j] != 0) {
-                    logger.debug(String.format("Filling position %s", Integer.valueOf(i).toString() + Integer.valueOf(j).toString()));
+//                    logger.debug(String.format("Filling position %s", Integer.valueOf(i).toString() + Integer.valueOf(j).toString()));
                     setGridCell(i, j, this.grid[i][j]);
                 }
             }
