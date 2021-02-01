@@ -28,8 +28,13 @@ public class Solver implements Runnable {
     }
 
     public void run() {
-        while (threads_waiting.get() < num_threads && !complete.get()) {
+        while (threads_waiting.get() < num_threads) {
             while (fringe.isEmpty()) {
+                synchronized (complete){
+                    if(complete.get()){
+                        break;
+                    }
+                }
                 synchronized (threads_waiting) {
                     threads_waiting.incrementAndGet();
                     try {
@@ -39,8 +44,11 @@ public class Solver implements Runnable {
                     }
                     threads_waiting.decrementAndGet();
                 }
-            }
 
+            }
+            synchronized (complete){
+                if(complete.get()){break;}
+            }
             try {
                 tempGrid = fringe.take();
             } catch (InterruptedException e) {
@@ -51,18 +59,23 @@ public class Solver implements Runnable {
             List<Integer> values = possibleValues.get(indexKey);
 
             for (int value : values){
+                synchronized (complete){
+                    if(complete.get()){break;}
+                }
                 int rowIndex = Character.getNumericValue(indexKey.charAt(0));
                 int colIndex = Character.getNumericValue(indexKey.charAt(1));
                 Grid newGrid = tempGrid.copy();
                 newGrid.reduce(rowIndex, colIndex, value);
-                logger.debug(String.format("Reduced grid at row %d and col %d given value %d",rowIndex,colIndex,value));
+//                logger.debug(String.format("Reduced grid at row %d and col %d given value %d",rowIndex,colIndex,value));
                 if(!checkExploredGrids(newGrid, explored_grids)){
                     if (newGrid.validateGrid()) {
                         if(newGrid.isSolution()){
                             newGrid.printResult();
                             synchronized (complete){
                                 complete.set(true);
-                                complete.notifyAll();
+                            }
+                            synchronized (threads_waiting){
+                                threads_waiting.notifyAll();
                             }
                         } else {
                             try {
@@ -89,14 +102,16 @@ public class Solver implements Runnable {
                     }
                 }
                 else{
-                    System.out.println("Found grid already in explored queue.");
+                    logger.debug("Found grid already in explored queue.");
                 }
             }
 
         }
-        System.out.println("No solution can be found for the provided grid.");
-        complete.set(true);
-        complete.notifyAll();
+        synchronized (complete){
+            if (!complete.get()){
+                System.out.println("No solution can be found for the provided grid.");
+            }
+        }
     }
 
     private boolean checkExploredGrids(Grid tempGrid, BlockingQueue<Grid> explored_grids){

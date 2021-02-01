@@ -6,8 +6,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
-        Grid grid = new Grid(2);
-        grid.loadGrid("src/test/sample_grid_small.txt");
+        Grid grid = new Grid(3);
+        grid.loadGrid("src/test/sample_grid.txt");
         BlockingQueue<Grid> fringe = new ArrayBlockingQueue(1024);
         fringe.put(grid);
         BlockingQueue<Grid> explored_grids = new ArrayBlockingQueue(1024);
