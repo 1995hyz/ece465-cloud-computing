@@ -218,8 +218,8 @@ public class Grid {
 
             }
         }
-        logger.debug(String.format("Next index to reduce: %s", minimumPossibleValueKey));
-        logger.debug(String.format("Number of possible values: %d", minimumPossibleValue));
+//        logger.debug(String.format("Next index to reduce: %s", minimumPossibleValueKey));
+//        logger.debug(String.format("Number of possible values: %d", minimumPossibleValue));
         return minimumPossibleValueKey;
     }
 
