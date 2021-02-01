@@ -265,6 +265,15 @@ public class Grid implements Serializable {
                 }
             }
         }
+        for (int i=0; i<this.dim; i++) {
+            for (int j=0; j < this.dim; j++ ) {
+                String key = Integer.valueOf(i).toString() + Integer.valueOf(j).toString();
+                if (this.possibleValues.get(key).size() == 1) {
+                    this.grid[i][j] = this.possibleValues.get(key).get(0);
+                }
+            }
+        }
+
         return true;
     }
 
