@@ -141,6 +141,8 @@ public class Grid implements Serializable {
                 }
             }
         }
+        String key = Integer.valueOf(rowIndex).toString() + Integer.valueOf(colIndex).toString();
+        this.possibleValues.replace(key, new ArrayList<>(Collections.singletonList(value)));
     }
 
     private void fillPossibleValuesOfGrid() {
