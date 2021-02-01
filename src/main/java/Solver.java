@@ -13,7 +13,7 @@ public class Solver implements Runnable {
     protected BlockingQueue<Grid> fringe;
     protected BlockingQueue<Grid> explored_grids;
     private final AtomicInteger threads_waiting;
-    private AtomicBoolean complete;
+    private final AtomicBoolean complete;
     int num_threads;
     private Grid tempGrid;
 
@@ -60,8 +60,10 @@ public class Solver implements Runnable {
                 if (tempGrid.validateGrid()) {
                     if(tempGrid.isSolution()){
                         tempGrid.printResult();
-                        complete.set(true);
-                        complete.notifyAll();
+                        synchronized (complete){
+                            complete.set(true);
+                            complete.notifyAll();
+                        }
                     }
                     else{
                         try {
