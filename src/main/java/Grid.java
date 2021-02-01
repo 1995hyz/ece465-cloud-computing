@@ -119,14 +119,14 @@ public class Grid {
         for(int i=0; i<this.dim; i++) {
             if (i != colIndex) {
                 String key = Integer.valueOf(rowIndex).toString() + Integer.valueOf(i).toString();
-                this.possibleValues.get(key).remove(removeValue);
+                Optional.ofNullable(this.possibleValues.get(key)).ifPresent(list->list.remove(removeValue));
             }
         }
         // Remove the value from the possible list of the same column
         for(int i=0; i<this.dim; i++) {
             if( i != rowIndex) {
                 String key = Integer.valueOf(i).toString() + Integer.valueOf(colIndex).toString();
-                this.possibleValues.get(key).remove(removeValue);
+                Optional.ofNullable(this.possibleValues.get(key)).ifPresent(list->list.remove(removeValue));
             }
         }
         // Remove the value from the possible list of the cells in the same sub-grid
@@ -136,7 +136,7 @@ public class Grid {
             for(int j=0; j<this.subDim; j++) {
                 if ( (rowSubGridPosition+i)!= rowIndex || (colSubGridPosition+j)!=colIndex ) {
                     String key = Integer.valueOf(rowSubGridPosition+i).toString() + Integer.valueOf(colSubGridPosition+j).toString();
-                    this.possibleValues.get(key).remove(removeValue);
+                    Optional.ofNullable(this.possibleValues.get(key)).ifPresent(list->list.remove(removeValue));
                 }
             }
         }
