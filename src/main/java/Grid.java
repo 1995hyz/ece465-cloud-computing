@@ -125,7 +125,7 @@ public class Grid {
         // Remove the value from the possible list of the same column
         for(int i=0; i<this.dim; i++) {
             if( i != rowIndex) {
-                String key = Integer.valueOf(i).toString() + Integer.valueOf(rowIndex).toString();
+                String key = Integer.valueOf(i).toString() + Integer.valueOf(colIndex).toString();
                 this.possibleValues.get(key).remove(removeValue);
             }
         }
