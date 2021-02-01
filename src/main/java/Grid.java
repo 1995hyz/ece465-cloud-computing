@@ -86,8 +86,8 @@ public class Grid {
             throw new IllegalArgumentException("Sub-grid index exceeds sub-grid dimension");
         }
         Map<String, List<Integer>> subGridPossibleValues = new HashMap<>();
-        int rowSubGridPosition = (rowIndex / this.subDim) * this.subDim;
-        int colSubGridPosition = (colIndex / this.subDim) * this.subDim;
+        int rowSubGridPosition = rowIndex  * this.subDim;
+        int colSubGridPosition = colIndex * this.subDim;
         for(int i=0; i<this.subDim; i++) {
             for(int j=0; j<this.subDim; j++) {
                     String key = Integer.valueOf(rowSubGridPosition+i).toString() + Integer.valueOf(colSubGridPosition+j).toString();
