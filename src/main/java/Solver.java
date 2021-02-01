@@ -12,7 +12,7 @@ public class Solver implements Runnable {
     private static final Logger logger = LogManager.getLogger(Solver.class);
     protected BlockingQueue<Grid> fringe;
     protected BlockingQueue<Grid> explored_grids;
-    private AtomicInteger threads_waiting;
+    private final AtomicInteger threads_waiting;
     private AtomicBoolean complete;
     int num_threads;
     private Grid tempGrid;
@@ -31,13 +31,15 @@ public class Solver implements Runnable {
     public void run() {
         while (threads_waiting.get() < num_threads && !complete.get()) {
             while (fringe.isEmpty()) {
-                threads_waiting.incrementAndGet();
-                try {
-                    threads_waiting.wait();
-                } catch (InterruptedException e) {
-                    logger.info(String.format("Solver %s waiting has been interrupted.", Integer.toString(this.ID)));
+                synchronized (threads_waiting) {
+                    threads_waiting.incrementAndGet();
+                    try {
+                        threads_waiting.wait();
+                    } catch (InterruptedException e) {
+                        logger.info(String.format("Solver %s waiting has been interrupted.", Integer.toString(this.ID)));
+                    }
+                    threads_waiting.decrementAndGet();
                 }
-                threads_waiting.decrementAndGet();
             }
             try {
                 tempGrid = fringe.take();
@@ -47,10 +49,13 @@ public class Solver implements Runnable {
             String indexKey = tempGrid.findNextIndexToSolveGrid();
             Map<String, List<Integer>> possibleValues = tempGrid.getPossibleValues();
             List<Integer> values = possibleValues.get(indexKey);
+            logger.debug(String.format("indexKey: %s",indexKey));
+            logger.debug(String.format("Number of possible values: %d", values.size()));
             Integer testValue = values.get(0);
             int rowIndex = indexKey.charAt(0);
             int colIndex = indexKey.charAt(1);
             tempGrid.reduce(rowIndex, colIndex, testValue);
+            logger.debug(String.format("Reduced grid at row %d and col %d given value %d",rowIndex,colIndex,testValue));
             if(!checkExploredGrids(tempGrid,explored_grids)){
                 if (tempGrid.validateGrid()) {
                     if(tempGrid.isSolution()){
