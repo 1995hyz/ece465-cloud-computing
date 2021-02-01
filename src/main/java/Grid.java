@@ -45,6 +45,9 @@ public class Grid {
         }
         fillPossibleValuesOfGrid();
     }
+    public Map<String, List<Integer>> getPossibleValues(){
+        return this.possibleValues;
+    }
 
     public int getGridCell(int row, int col) {
         return grid[row][col];
@@ -74,6 +77,7 @@ public class Grid {
         }
         return colPossibleValues;
     }
+
 
     public Map<String, List<Integer>> getSubGridPossibleValues(int rowIndex, int colIndex) {
         if (rowIndex >= this.subDim || colIndex >= this.subDim) {
@@ -216,4 +220,18 @@ public class Grid {
         }
         return minimumPossibleValueKey;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        Grid grid2 = (Grid) o;
+        for(int i = 0; i < this.dim; i++){
+            for(int j = 0; j < this.dim; j++){
+                if(this.getGridCell(i,j) != grid2.getGridCell(i,j)){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
 }

@@ -1,3 +1,6 @@
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.Logger;
@@ -25,22 +28,58 @@ public class Solver implements Runnable {
     }
 
     public void run() {
-//        while (threads_waiting.get() < num_threads){
-//            while (fringe.isEmpty()){
-//                threads_waiting.incrementAndGet();
-//                try {
-//                    Thread.sleep(30000);
-//                } catch (InterruptedException e) {
-//                    logger.info(String.format("Solver %s sleeping has been interrupted.", Integer.toString(this.ID)));
-//                }
-//                threads_waiting.decrementAndGet();
-//            }
-//            try {
-//                tempGrid = fringe.take();
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//        }
+        while (threads_waiting.get() < num_threads) {
+            while (fringe.isEmpty()) {
+                threads_waiting.incrementAndGet();
+                try {
+                    threads_waiting.wait();
+                } catch (InterruptedException e) {
+                    logger.info(String.format("Solver %s waiting has been interrupted.", Integer.toString(this.ID)));
+                }
+                threads_waiting.decrementAndGet();
+            }
+            try {
+                tempGrid = fringe.take();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            String indexKey = tempGrid.findNextIndexToSolveGrid();
+            Map<String, List<Integer>> possibleValues = tempGrid.getPossibleValues();
+            List<Integer> values = possibleValues.get(indexKey);
+            Integer testValue = values.get(0);
+            int rowIndex = indexKey.charAt(0);
+            int colIndex = indexKey.charAt(1);
+            tempGrid.reduce(rowIndex, colIndex, testValue);
+            if(!checkExploredGrids(tempGrid,explored_grids)){
+                if (tempGrid.validateGrid()) {
+                    try {
+                        fringe.put(tempGrid);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        explored_grids.put(tempGrid);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    threads_waiting.notifyAll();
+                } else {
+                    try {
+                        explored_grids.put(tempGrid);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
 
+    private boolean checkExploredGrids(Grid tempGrid, BlockingQueue<Grid> explored_grids){
+        for (Grid explored_grid : explored_grids) {
+            if (tempGrid.equals(explored_grid)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
