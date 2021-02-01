@@ -162,6 +162,9 @@ public class Grid implements Serializable {
      * have one unique solution, the solution is also unique among others.
      */
     public boolean validateGrid() {
+        if (possibleValues.values().stream().anyMatch(List::isEmpty)) {
+            return false;
+        }
         for (int i=0; i<this.dim; i++) {
             Map<String, List<Integer>> row = this.getGridRowPossibleValues(i);
             // List all cell values that only have one possible value
