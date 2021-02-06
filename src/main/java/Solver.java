@@ -10,18 +10,16 @@ public class Solver implements Runnable {
     private final int ID;
     private static final Logger logger = LogManager.getLogger(Solver.class);
     protected BlockingQueue<Grid> fringe;
-    protected BlockingQueue<Grid> explored_grids;
     private final AtomicInteger threads_waiting;
     private final AtomicBoolean complete;
     int num_threads;
     private Grid tempGrid;
 
 
-    public Solver(int ID, BlockingQueue<Grid> fringe, BlockingQueue<Grid> explored_grids,
+    public Solver(int ID, BlockingQueue<Grid> fringe,
                   AtomicInteger threads_waiting, int num_threads, AtomicBoolean complete) {
         this.ID = ID;
         this.fringe = fringe;
-        this.explored_grids = explored_grids;
         this.threads_waiting = threads_waiting;
         this.num_threads = num_threads;
         this.complete = complete;
@@ -44,7 +42,6 @@ public class Solver implements Runnable {
                     }
                     threads_waiting.decrementAndGet();
                 }
-
             }
             synchronized (complete){
                 if(complete.get()){break;}
@@ -67,42 +64,23 @@ public class Solver implements Runnable {
                 Grid newGrid = tempGrid.copy();
                 newGrid.reduce(rowIndex, colIndex, value);
                 logger.debug(String.format("Reduced grid at row %d and col %d given value %d",rowIndex,colIndex,value));
-                if(!checkExploredGrids(newGrid, explored_grids)){
-                    if (newGrid.validateGrid()) {
-                        if(newGrid.isSolution()){
-                            newGrid.printResult();
-                            synchronized (complete){
-                                complete.set(true);
-                            }
-                            synchronized (threads_waiting){
-                                threads_waiting.notifyAll();
-                            }
-                        } else {
-                            try {
-                                fringe.put(newGrid);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                            try {
-                                explored_grids.put(newGrid);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                            synchronized (threads_waiting){
-                                threads_waiting.notifyAll();
-                            }
-
+                if (newGrid.validateGrid()) {
+                    if(newGrid.isSolution()){
+                        newGrid.printResult();
+                        synchronized (complete){
+                            complete.set(true);
                         }
                     } else {
                         try {
-                            explored_grids.put(newGrid);
+                            fringe.put(newGrid);
+                            logger.debug(String.format("Size of fringe: %d",fringe.size()));
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
                     }
-                }
-                else{
-                    logger.debug("Found grid already in explored queue.");
+                    synchronized (threads_waiting){
+                        threads_waiting.notifyAll();
+                    }
                 }
             }
 

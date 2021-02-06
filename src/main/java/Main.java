@@ -9,17 +9,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
         Grid grid = new Grid(3);
-        grid.loadGrid("src/test/sample_grid.txt");
-        BlockingQueue<Grid> fringe = new ArrayBlockingQueue(1024);
+        grid.loadGrid("src/test/grid_hard.txt");
+        BlockingQueue<Grid> fringe = new ArrayBlockingQueue(7000);
         fringe.put(grid);
-        BlockingQueue<Grid> explored_grids = new ArrayBlockingQueue(1024);
-        int num_threads = 1;
+        int num_threads = 4;
         AtomicInteger threads_waiting = new AtomicInteger(0);
         AtomicBoolean complete = new AtomicBoolean((false));
         long start = System.nanoTime();
         List threads = new ArrayList();
         for (int i = 0; i < num_threads; i++){
-            Thread t = (new Thread(new Solver(i+1, fringe, explored_grids,threads_waiting, num_threads, complete)));
+            Thread t = (new Thread(new Solver(i+1, fringe, threads_waiting, num_threads, complete)));
             t.start();
             threads.add(t);
         }

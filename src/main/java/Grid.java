@@ -230,6 +230,23 @@ public class Grid implements Serializable {
         return minimumPossibleValueKey;
     }
 
+    public String findFirstIndexToSolveGrid() {
+        int maximumPossibleValue = 2;
+        String maximumPossibleValueKey = null;
+        for (int i=0; i<this.dim; i++) {
+            for (int j=0; j<this.dim; j++) {
+                String key = Integer.valueOf(i).toString() + Integer.valueOf(j).toString();
+                int possibleValueSize = this.possibleValues.get(key).size();
+                if (possibleValueSize >= maximumPossibleValue) {
+                    maximumPossibleValueKey = key;
+                    maximumPossibleValue = possibleValueSize;
+                }
+
+            }
+        }
+        return maximumPossibleValueKey;
+    }
+
     @Override
     public boolean equals(Object o) {
         Grid grid2 = (Grid) o;
