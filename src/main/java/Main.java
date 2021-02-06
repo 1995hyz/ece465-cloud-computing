@@ -12,7 +12,7 @@ public class Main {
         grid.loadGrid("src/test/grid_hard.txt");
         BlockingQueue<Grid> fringe = new ArrayBlockingQueue(1024);
         fringe.put(grid);
-        int num_threads = 1;
+        int num_threads = 4;
         AtomicInteger threads_waiting = new AtomicInteger(0);
         AtomicBoolean complete = new AtomicBoolean((false));
         long start = System.nanoTime();
