@@ -10,7 +10,7 @@ Separate threads analyze the game tree simultaneously via depth-first search. A 
 
 ## Revision 1b
 
-The algorithm was sped up by introducing pruning, i.e. ignoring branches that created invalid grids. The heuristics applied were sourced from: https://github.com/Shivanshu-Gupta/Parallel-Sudoku-Solver/blob/master/doc/DesignDoc.pdf
+The algorithm was sped up by introducing pruning, i.e. ignoring branches that created invalid grids. The heuristics applied were sourced from: https://github.com/Shivanshu-Gupta/Parallel-Sudoku-Solver/blob/master/doc/DesignDoc.pdf.
 Specifically, grids off of the fringe that had cells with no possible values were pruned, in addition to grids where there was a desired number not in the possible values of a row, column, or grid. 
 
 Another speed improvement came from the removal of the explored queue, which was realized to be unnecessary as the algorithm never duplicated grids. Now, a thread attempting to add to the fringe does not need to check the explored queue first.
