@@ -64,24 +64,27 @@ public class Solver implements Runnable {
                 Grid newGrid = tempGrid.copy();
                 newGrid.reduce(rowIndex, colIndex, value);
                 logger.debug(String.format("Reduced grid at row %d and col %d given value %d",rowIndex,colIndex,value));
-                if (newGrid.validateGrid()) {
-                    if(newGrid.isSolution()){
-                        newGrid.printResult();
-                        synchronized (complete){
-                            complete.set(true);
+                if(!newGrid.canPrune()){
+                    if (newGrid.validateGrid()) {
+                        if(newGrid.isSolution()){
+                            newGrid.printResult();
+                            synchronized (complete){
+                                complete.set(true);
+                            }
+                        } else {
+                            try {
+                                fringe.put(newGrid);
+                                logger.debug(String.format("Size of fringe: %d",fringe.size()));
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
                         }
-                    } else {
-                        try {
-                            fringe.put(newGrid);
-                            logger.debug(String.format("Size of fringe: %d",fringe.size()));
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+                        synchronized (threads_waiting){
+                            threads_waiting.notifyAll();
                         }
-                    }
-                    synchronized (threads_waiting){
-                        threads_waiting.notifyAll();
                     }
                 }
+
             }
 
         }

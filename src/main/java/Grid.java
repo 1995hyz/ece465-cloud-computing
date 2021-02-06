@@ -297,4 +297,61 @@ public class Grid implements Serializable {
     public Grid copy() {
         return SerializationUtils.clone(this);
     }
+
+    public boolean canPrune(){
+        // check if there are any cells with no possible values
+        for(int i = 0; i < this.dim; i++){
+            for(int j = 0; j < this.dim; j++){
+                String key = Integer.valueOf(i).toString() + Integer.valueOf(j).toString();
+                if (this.possibleValues.get(key).size() == 0) {
+                    logger.debug("Found grid in fringe that had cell(s) with no possible value.");
+                    return true;
+                }
+            }
+        }
+        // check if there is a number that doesn't occur in the possible values of any row
+        for(int i = 0; i < this.dim; i++) {
+            Map<String, List<Integer>> rowPossibleValues = this.getGridRowPossibleValues(i);
+            Set<Integer> combinedRowValues = new HashSet<Integer>();
+            for (Map.Entry elem : rowPossibleValues.entrySet()){
+                List<Integer> values= (List<Integer>) elem.getValue();
+                combinedRowValues.addAll(values);
+            }
+            if(combinedRowValues.size()!=9){
+                logger.debug("Found grid in fringe with row with incomplete set of possible values.");
+                return true;
+            }
+        }
+
+        // check if there is a number that doesn't occur in the possible values of any column
+        for(int i = 0; i < this.dim; i++) {
+            Map<String, List<Integer>> colPossibleValues = this.getGridColumnPossibleValues(i);
+            Set<Integer> combinedColValues = new HashSet<Integer>();
+            for (Map.Entry elem : colPossibleValues.entrySet()){
+                List<Integer> values= (List<Integer>) elem.getValue();
+                combinedColValues.addAll(values);
+            }
+            if(combinedColValues.size()!=9){
+                logger.debug("Found grid in fringe with column with incomplete set of possible values.");
+                return true;
+            }
+        }
+
+        // check if there is a number that doesn't occur in the possible values of any subgrid
+        for(int i = 0; i < this.subDim; i++){
+            for(int j = 0; j < this.subDim; j++){
+                Map<String, List<Integer>> subGridPossibleValues = this.getSubGridPossibleValues(i,j);
+                Set<Integer> combinedSubGridValues = new HashSet<Integer>();
+                for (Map.Entry elem : subGridPossibleValues.entrySet()){
+                    List<Integer> values= (List<Integer>) elem.getValue();
+                    combinedSubGridValues.addAll(values);
+                }
+                if(combinedSubGridValues.size()!=9){
+                    logger.debug("Found grid in fringe with subgrid with incomplete set of possible values.");
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }

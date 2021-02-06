@@ -10,9 +10,9 @@ public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
         Grid grid = new Grid(3);
         grid.loadGrid("src/test/grid_hard.txt");
-        BlockingQueue<Grid> fringe = new ArrayBlockingQueue(7000);
+        BlockingQueue<Grid> fringe = new ArrayBlockingQueue(1024);
         fringe.put(grid);
-        int num_threads = 4;
+        int num_threads = 1;
         AtomicInteger threads_waiting = new AtomicInteger(0);
         AtomicBoolean complete = new AtomicBoolean((false));
         long start = System.nanoTime();
