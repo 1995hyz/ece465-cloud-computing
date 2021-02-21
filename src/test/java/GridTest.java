@@ -104,11 +104,11 @@ public class GridTest {
             int rowIndex = (int) invocationOnMock.getArguments()[0];
             return getGridRowPossibleValues(rowIndex, subDimension * subDimension, possibleValues);
         });
-        Mockito.when(gridMocked.getGridColumnPossibleValues(Mockito.anyInt())).thenAnswer(invocationOnMock -> {
+        Mockito.lenient().when(gridMocked.getGridColumnPossibleValues(Mockito.anyInt())).thenAnswer(invocationOnMock -> {
             int columnIndex = (int) invocationOnMock.getArguments()[0];
             return getGridColumnPossibleValues(columnIndex, subDimension * subDimension, possibleValues);
         });
-        Mockito.when(gridMocked.getSubGridPossibleValues(Mockito.anyInt(), Mockito.anyInt())).thenAnswer(invocationOnMock -> {
+        Mockito.lenient().when(gridMocked.getSubGridPossibleValues(Mockito.anyInt(), Mockito.anyInt())).thenAnswer(invocationOnMock -> {
             int rowIndex = (int) invocationOnMock.getArguments()[0];
             int columnIndex = (int) invocationOnMock.getArguments()[1];
             return getSubGridPossibleValues(rowIndex, columnIndex, subDimension, possibleValues);
@@ -133,7 +133,7 @@ public class GridTest {
             int columnIndex = (int) invocationOnMock.getArguments()[0];
             return getGridColumnPossibleValues(columnIndex, subDimension * subDimension, possibleValues);
         });
-        Mockito.when(gridMocked.getSubGridPossibleValues(Mockito.anyInt(), Mockito.anyInt())).thenAnswer(invocationOnMock -> {
+        Mockito.lenient().when(gridMocked.getSubGridPossibleValues(Mockito.anyInt(), Mockito.anyInt())).thenAnswer(invocationOnMock -> {
             int rowIndex = (int) invocationOnMock.getArguments()[0];
             int columnIndex = (int) invocationOnMock.getArguments()[1];
             return getSubGridPossibleValues(rowIndex, columnIndex, subDimension, possibleValues);

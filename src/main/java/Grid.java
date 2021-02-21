@@ -6,13 +6,20 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.List;
+import java.util.Scanner;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class Grid implements Serializable {
 
-    private static Logger logger = LogManager.getLogger(Grid.class);
+    private static final Logger logger = LogManager.getLogger(Grid.class);
 
     private final int dim;
     private final int subDim;
@@ -115,7 +122,7 @@ public class Grid implements Serializable {
      */
     public void reduce(int rowIndex, int colIndex, int value) {
         // The Integer boxing is needed to work with list.remove() to remove by value
-        Integer removeValue = Integer.valueOf(value);
+        Integer removeValue = value;
         // Remove the value from the possible list of the same row
         for(int i=0; i<this.dim; i++) {
             if (i != colIndex) {
@@ -241,7 +248,6 @@ public class Grid implements Serializable {
                     maximumPossibleValueKey = key;
                     maximumPossibleValue = possibleValueSize;
                 }
-
             }
         }
         return maximumPossibleValueKey;
@@ -312,9 +318,9 @@ public class Grid implements Serializable {
         // check if there is a number that doesn't occur in the possible values of any row
         for(int i = 0; i < this.dim; i++) {
             Map<String, List<Integer>> rowPossibleValues = this.getGridRowPossibleValues(i);
-            Set<Integer> combinedRowValues = new HashSet<Integer>();
-            for (Map.Entry elem : rowPossibleValues.entrySet()){
-                List<Integer> values= (List<Integer>) elem.getValue();
+            Set<Integer> combinedRowValues = new HashSet<>();
+            for (Map.Entry<String, List<Integer>> elem : rowPossibleValues.entrySet()){
+                List<Integer> values = elem.getValue();
                 combinedRowValues.addAll(values);
             }
             if(combinedRowValues.size()!=9){
@@ -326,12 +332,12 @@ public class Grid implements Serializable {
         // check if there is a number that doesn't occur in the possible values of any column
         for(int i = 0; i < this.dim; i++) {
             Map<String, List<Integer>> colPossibleValues = this.getGridColumnPossibleValues(i);
-            Set<Integer> combinedColValues = new HashSet<Integer>();
-            for (Map.Entry elem : colPossibleValues.entrySet()){
-                List<Integer> values= (List<Integer>) elem.getValue();
+            Set<Integer> combinedColValues = new HashSet<>();
+            for (Map.Entry<String, List<Integer>> elem : colPossibleValues.entrySet()){
+                List<Integer> values = elem.getValue();
                 combinedColValues.addAll(values);
             }
-            if(combinedColValues.size()!=9){
+            if (combinedColValues.size() !=9 ){
                 logger.debug("Found grid in fringe with column with incomplete set of possible values.");
                 return true;
             }
@@ -341,9 +347,9 @@ public class Grid implements Serializable {
         for(int i = 0; i < this.subDim; i++){
             for(int j = 0; j < this.subDim; j++){
                 Map<String, List<Integer>> subGridPossibleValues = this.getSubGridPossibleValues(i,j);
-                Set<Integer> combinedSubGridValues = new HashSet<Integer>();
-                for (Map.Entry elem : subGridPossibleValues.entrySet()){
-                    List<Integer> values= (List<Integer>) elem.getValue();
+                Set<Integer> combinedSubGridValues = new HashSet<>();
+                for (Map.Entry<String, List<Integer>> elem : subGridPossibleValues.entrySet()){
+                    List<Integer> values = elem.getValue();
                     combinedSubGridValues.addAll(values);
                 }
                 if(combinedSubGridValues.size()!=9){
