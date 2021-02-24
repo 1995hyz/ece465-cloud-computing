@@ -27,7 +27,7 @@ public class Solver implements Runnable {
 
     public void run() {
         while (threads_waiting.get() < num_threads) {
-            while (fringe.isEmpty()) {
+            while (this.fringe.isEmpty()) {
                 synchronized (complete){
                     if(complete.get()){
                         break;
@@ -47,12 +47,12 @@ public class Solver implements Runnable {
                 if(complete.get()){break;}
             }
             try {
-                tempGrid = fringe.take();
+                this.tempGrid = this.fringe.take();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            String indexKey = tempGrid.findNextIndexToSolveGrid();
-            Map<String, List<Integer>> possibleValues = tempGrid.getPossibleValues();
+            String indexKey = this.tempGrid.findNextIndexToSolveGrid();
+            Map<String, List<Integer>> possibleValues = this.tempGrid.getPossibleValues();
             List<Integer> values = possibleValues.get(indexKey);
 
             for (int value : values){
@@ -61,7 +61,7 @@ public class Solver implements Runnable {
                 }
                 int rowIndex = Character.getNumericValue(indexKey.charAt(0));
                 int colIndex = Character.getNumericValue(indexKey.charAt(1));
-                Grid newGrid = tempGrid.copy();
+                Grid newGrid = this.tempGrid.copy();
                 newGrid.reduce(rowIndex, colIndex, value);
                 logger.debug(String.format("Reduced grid at row %d and col %d given value %d",rowIndex,colIndex,value));
                 if(!newGrid.canPrune()){
@@ -73,8 +73,8 @@ public class Solver implements Runnable {
                             }
                         } else {
                             try {
-                                fringe.put(newGrid);
-                                logger.debug(String.format("Size of fringe: %d",fringe.size()));
+                                this.fringe.put(newGrid);
+                                logger.debug(String.format("Size of fringe: %d", this.fringe.size()));
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
@@ -86,7 +86,6 @@ public class Solver implements Runnable {
                 }
 
             }
-
         }
         synchronized (complete){
             if (!complete.get()){
