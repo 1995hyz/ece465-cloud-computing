@@ -1,4 +1,5 @@
 import com.fasterxml.jackson.databind.ObjectMapper;
+import multi_node_multi_thread.Grid;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

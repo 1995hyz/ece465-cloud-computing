@@ -1,3 +1,5 @@
+package multi_node_multi_thread;
+
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -89,7 +91,7 @@ public class Grid implements Serializable {
 
     public Map<String, List<Integer>> getSubGridPossibleValues(int rowIndex, int colIndex) {
         if (rowIndex >= this.subDim || colIndex >= this.subDim) {
-            logger.error(String.format("Grid::getSubGridPossibleValues:Cannot get sub-grid with row '%s' and column '%s'" +
+            logger.error(String.format("multi_node_multi_thread.model.Grid::getSubGridPossibleValues:Cannot get sub-grid with row '%s' and column '%s'" +
                     " when sub-grid dimension is '%s'", rowIndex, colIndex, this.subDim));
             throw new IllegalArgumentException("Sub-grid index exceeds sub-grid dimension");
         }
@@ -306,8 +308,8 @@ public class Grid implements Serializable {
 
     public boolean canPrune(){
         // check if there are any cells with no possible values
-        for(int i = 0; i < this.dim; i++){
-            for(int j = 0; j < this.dim; j++){
+        for (int i = 0; i < this.dim; i++){
+            for (int j = 0; j < this.dim; j++){
                 String key = Integer.valueOf(i).toString() + Integer.valueOf(j).toString();
                 if (this.possibleValues.get(key).size() == 0) {
                     logger.debug("Found grid in fringe that had cell(s) with no possible value.");
@@ -316,7 +318,7 @@ public class Grid implements Serializable {
             }
         }
         // check if there is a number that doesn't occur in the possible values of any row
-        for(int i = 0; i < this.dim; i++) {
+        for (int i = 0; i < this.dim; i++) {
             Map<String, List<Integer>> rowPossibleValues = this.getGridRowPossibleValues(i);
             Set<Integer> combinedRowValues = new HashSet<>();
             for (Map.Entry<String, List<Integer>> elem : rowPossibleValues.entrySet()){
@@ -330,7 +332,7 @@ public class Grid implements Serializable {
         }
 
         // check if there is a number that doesn't occur in the possible values of any column
-        for(int i = 0; i < this.dim; i++) {
+        for (int i = 0; i < this.dim; i++) {
             Map<String, List<Integer>> colPossibleValues = this.getGridColumnPossibleValues(i);
             Set<Integer> combinedColValues = new HashSet<>();
             for (Map.Entry<String, List<Integer>> elem : colPossibleValues.entrySet()){
@@ -344,8 +346,8 @@ public class Grid implements Serializable {
         }
 
         // check if there is a number that doesn't occur in the possible values of any subgrid
-        for(int i = 0; i < this.subDim; i++){
-            for(int j = 0; j < this.subDim; j++){
+        for (int i = 0; i < this.subDim; i++){
+            for (int j = 0; j < this.subDim; j++){
                 Map<String, List<Integer>> subGridPossibleValues = this.getSubGridPossibleValues(i,j);
                 Set<Integer> combinedSubGridValues = new HashSet<>();
                 for (Map.Entry<String, List<Integer>> elem : subGridPossibleValues.entrySet()){
@@ -359,5 +361,16 @@ public class Grid implements Serializable {
             }
         }
         return false;
+    }
+
+    public boolean isFilled() {
+        for (int i = 0; i < this.dim; i++){
+            for (int j = 0; j < this.dim; j++){
+                if (this.grid[i][j] == 0) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }

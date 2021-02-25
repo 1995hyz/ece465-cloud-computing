@@ -1,3 +1,5 @@
+package multi_node_multi_thread;
+
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -9,7 +11,7 @@ import org.apache.logging.log4j.LogManager;
 public class Solver implements Runnable {
     private final int ID;
     private static final Logger logger = LogManager.getLogger(Solver.class);
-    protected BlockingQueue<Grid> fringe;
+    private BlockingQueue<Grid> fringe;
     private final AtomicInteger threads_waiting;
     private final AtomicBoolean complete;
     int num_threads;
@@ -38,7 +40,7 @@ public class Solver implements Runnable {
                     try {
                         threads_waiting.wait();
                     } catch (InterruptedException e) {
-                        logger.info(String.format("Solver %s waiting has been interrupted.", Integer.toString(this.ID)));
+                        logger.info(String.format("multi_node_multi_thread.model.Solver %s waiting has been interrupted.", Integer.toString(this.ID)));
                     }
                     threads_waiting.decrementAndGet();
                 }
@@ -63,7 +65,7 @@ public class Solver implements Runnable {
                 int colIndex = Character.getNumericValue(indexKey.charAt(1));
                 Grid newGrid = this.tempGrid.copy();
                 newGrid.reduce(rowIndex, colIndex, value);
-                logger.debug(String.format("Reduced grid at row %d and col %d given value %d",rowIndex,colIndex,value));
+                //logger.debug(String.format("Reduced grid at row %d and col %d given value %d",rowIndex,colIndex,value));
                 if(!newGrid.canPrune()){
                     if (newGrid.validateGrid()) {
                         if(newGrid.isSolution()){
