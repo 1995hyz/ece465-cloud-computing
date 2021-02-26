@@ -12,6 +12,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.ServerSocket;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Manager implements Runnable {
 
@@ -21,12 +22,14 @@ public class Manager implements Runnable {
     private int portNumber;
     private Grid initialGrid;
     private BlockingQueue<Grid> exploredGrid;
+    private final AtomicBoolean complete;
 
-    public Manager(int id, int portNumber, Grid grid, BlockingQueue<Grid> exploredGrid) throws InterruptedException {
+    public Manager(int id, int portNumber, Grid grid, BlockingQueue<Grid> exploredGrid, AtomicBoolean complete) {
         this.id = id;
         this.portNumber = portNumber;
         this.exploredGrid = exploredGrid;
         this.initialGrid = grid;
+        this.complete = complete;
     }
 
     @Override
@@ -44,14 +47,25 @@ public class Manager implements Runnable {
             objectOutputStream.reset();
 
             while (true) {
+                synchronized (this.complete) {
+                    if (this.complete.get()) {
+                        break;
+                    }
+                }
                 Grid proposedGrid = (Grid) objectInputStream.readObject();
                 if(proposedGrid.isFilled()) {
+                    synchronized (this.complete) {
+                        this.complete.set(true);
+
+                        // Find a solution
+
+                    }
                     break;
                 }
                 if (exploredGrid.contains(proposedGrid)) {
-                    objectOutputStream.writeObject(Boolean.TRUE);
+                    objectOutputStream.writeObject(new ManagerResponse(true, true));
                 } else {
-                    objectOutputStream.writeObject(Boolean.FALSE);
+                    objectOutputStream.writeObject(new ManagerResponse(false, true));
                     try {
                         if (exploredGrid.size() < Constants.EXPLORED_QUEUE_MAX_SIZE) {
                             exploredGrid.put(proposedGrid);
@@ -63,11 +77,11 @@ public class Manager implements Runnable {
                         logger.error(String.format("Manager [%s] fails to add explored grid on to the explored-grid queue." +
                                         " ex, %s ", id, e.toString()));
                     }
-
-
                 }
                 objectOutputStream.reset();
             }
+
+            socket.close();
 
         } catch (IOException | ClassNotFoundException e) {
             logger.error(String.format("Manager [%s] exit with exception %s", id, e.toString()));

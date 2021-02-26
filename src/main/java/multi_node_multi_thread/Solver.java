@@ -14,21 +14,21 @@ public class Solver implements Runnable {
     private BlockingQueue<Grid> fringe;
     private final AtomicInteger threads_waiting;
     private final AtomicBoolean complete;
-    int num_threads;
+    private int numThreads;
     private Grid tempGrid;
 
 
     public Solver(int ID, BlockingQueue<Grid> fringe,
-                  AtomicInteger threads_waiting, int num_threads, AtomicBoolean complete) {
+                  AtomicInteger threads_waiting, int numThreads, AtomicBoolean complete) {
         this.ID = ID;
         this.fringe = fringe;
         this.threads_waiting = threads_waiting;
-        this.num_threads = num_threads;
+        this.numThreads = numThreads;
         this.complete = complete;
     }
 
     public void run() {
-        while (threads_waiting.get() < num_threads) {
+        while (threads_waiting.get() < numThreads) {
             while (this.fringe.isEmpty()) {
                 synchronized (complete){
                     if(complete.get()){
@@ -65,7 +65,7 @@ public class Solver implements Runnable {
                 int colIndex = Character.getNumericValue(indexKey.charAt(1));
                 Grid newGrid = this.tempGrid.copy();
                 newGrid.reduce(rowIndex, colIndex, value);
-                //logger.debug(String.format("Reduced grid at row %d and col %d given value %d",rowIndex,colIndex,value));
+                logger.debug(String.format("Reduced grid at row %d and col %d given value %d", rowIndex, colIndex, value));
                 if(!newGrid.canPrune()){
                     if (newGrid.validateGrid()) {
                         if(newGrid.isSolution()){
