@@ -221,7 +221,7 @@ public class Grid implements Serializable {
      * second digit is the column index
      */
     public String findNextIndexToSolveGrid() {
-        int minimumPossibleValue = 9;
+        int minimumPossibleValue = this.dim;
         String minimumPossibleValueKey = null;
         for (int i=0; i<this.dim; i++) {
             for (int j=0; j<this.dim; j++) {
@@ -372,5 +372,9 @@ public class Grid implements Serializable {
             }
         }
         return true;
+    }
+
+    public int getDim() {
+        return this.dim;
     }
 }

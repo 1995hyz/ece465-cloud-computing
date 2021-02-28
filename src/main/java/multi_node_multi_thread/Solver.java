@@ -2,6 +2,7 @@ package multi_node_multi_thread;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -11,25 +12,30 @@ import org.apache.logging.log4j.LogManager;
 public class Solver implements Runnable {
     private final int ID;
     private static final Logger logger = LogManager.getLogger(Solver.class);
-    private BlockingQueue<Grid> fringe;
+    private BlockingQueue<Grid> fringeProposed;
+    private BlockingQueue<Grid> fringeApproved;
     private final AtomicInteger threads_waiting;
     private final AtomicBoolean complete;
     private int numThreads;
     private Grid tempGrid;
+    private int initialRowIndex = -1;
+    private int initialColumnIndex = -1;
+    private boolean initialRun = false;
 
-
-    public Solver(int ID, BlockingQueue<Grid> fringe,
-                  AtomicInteger threads_waiting, int numThreads, AtomicBoolean complete) {
-        this.ID = ID;
-        this.fringe = fringe;
+    public Solver (int id, BlockingQueue<Grid> fringeProposed, BlockingQueue<Grid> fringeApproved,
+                   AtomicInteger threads_waiting, int numThreads, AtomicBoolean complete, boolean initialRun) {
+        this.ID = id;
+        this.fringeProposed = fringeProposed;
+        this.fringeApproved = fringeApproved;
         this.threads_waiting = threads_waiting;
         this.numThreads = numThreads;
         this.complete = complete;
+        this.initialRun = initialRun;
     }
 
     public void run() {
         while (threads_waiting.get() < numThreads) {
-            while (this.fringe.isEmpty()) {
+            while (this.fringeApproved.isEmpty()) {
                 synchronized (complete){
                     if(complete.get()){
                         break;
@@ -40,20 +46,28 @@ public class Solver implements Runnable {
                     try {
                         threads_waiting.wait();
                     } catch (InterruptedException e) {
-                        logger.info(String.format("multi_node_multi_thread.model.Solver %s waiting has been interrupted.", Integer.toString(this.ID)));
+                        logger.info(String.format("Solver %s waiting has been interrupted.", Integer.toString(this.ID)));
                     }
                     threads_waiting.decrementAndGet();
                 }
             }
             synchronized (complete){
-                if(complete.get()){break;}
+                if(complete.get()){ break; }
             }
             try {
-                this.tempGrid = this.fringe.take();
+                this.tempGrid = this.fringeApproved.take();
             } catch (InterruptedException e) {
                 e.printStackTrace();
+                continue;
             }
-            String indexKey = this.tempGrid.findNextIndexToSolveGrid();
+            String indexKey;
+            if (this.initialRun) {
+                this.generateRandomInitialPair();
+                indexKey = Integer.valueOf(this.initialRowIndex).toString() + Integer.valueOf(this.initialColumnIndex).toString();
+                this.initialRun = false;
+            } else {
+                indexKey = this.tempGrid.findNextIndexToSolveGrid();
+            }
             Map<String, List<Integer>> possibleValues = this.tempGrid.getPossibleValues();
             List<Integer> values = possibleValues.get(indexKey);
 
@@ -75,8 +89,7 @@ public class Solver implements Runnable {
                             }
                         } else {
                             try {
-                                this.fringe.put(newGrid);
-                                logger.debug(String.format("Size of fringe: %d", this.fringe.size()));
+                                this.fringeProposed.put(newGrid);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
@@ -103,5 +116,14 @@ public class Solver implements Runnable {
             }
         }
         return false;
+    }
+
+    private void generateRandomInitialPair() {
+        int gridDim = this.tempGrid.getDim();
+        do {
+            Random randomGenerator = new Random();
+            initialRowIndex = randomGenerator.nextInt(gridDim);
+            initialColumnIndex = randomGenerator.nextInt(gridDim);
+        } while (this.tempGrid.getGridCell(initialRowIndex, initialColumnIndex) > -1);
     }
 }

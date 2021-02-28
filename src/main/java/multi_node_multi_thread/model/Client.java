@@ -1,18 +1,16 @@
 package multi_node_multi_thread.model;
 
 import multi_node_multi_thread.Grid;
+import multi_node_multi_thread.Node;
 import multi_node_multi_thread.Solver;
 import multi_node_multi_thread.utils.Constants;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -24,38 +22,34 @@ public class Client {
 
     public static void main(String[] args) {
         int portNumber = Integer.parseInt(args[1]);
+        String id = UUID.randomUUID().toString();
         try {
-            Socket client = new Socket("localhost", portNumber);
-            logger.info(String.format("Client connects to port %d", portNumber));
-            ObjectInputStream clientInput = new ObjectInputStream(client.getInputStream());
-            ObjectOutputStream clientOutput = new ObjectOutputStream(client.getOutputStream());
-
-            // Receive initial setup from the paired manager
-            Grid initialGrid = (Grid) clientInput.readObject();
-            BlockingQueue<Grid> fringe = new ArrayBlockingQueue<>(Constants.SOLVER_FRINGE_MAX_SIZE);
-            fringe.put(initialGrid);
+            BlockingQueue<Grid> fringeProposed = new ArrayBlockingQueue<>(Constants.SOLVER_FRINGE_MAX_SIZE);
+            BlockingQueue<Grid> fringeApproved = new ArrayBlockingQueue<>(Constants.SOLVER_FRINGE_MAX_SIZE);
             int numThreads = 4;
             AtomicInteger threads_waiting = new AtomicInteger(0);
             AtomicBoolean complete = new AtomicBoolean((false));
             long start = System.nanoTime();
             List<Thread> threads = new ArrayList<>();
-            for (int i = 0; i < numThreads; i++){
-                Thread t = (new Thread(new Solver(i+1, fringe, threads_waiting, numThreads, complete)));
+            Thread n = (new Thread(new Node(id, portNumber, fringeProposed, fringeApproved , complete)));
+            n.start();
+            threads.add(n);
+            Thread t1 = (new Thread(new Solver(1, fringeProposed, fringeApproved, threads_waiting, numThreads, complete, true)));
+            t1.start();
+            threads.add(t1);
+            for (int i = 1; i < numThreads; i++){
+                Thread t = (new Thread(new Solver(i+1, fringeProposed, fringeApproved, threads_waiting, numThreads, complete, false)));
                 t.start();
                 threads.add(t);
             }
-            for (int i = 0; i < numThreads; i++){
+            for (int i = 0; i < numThreads+1; i++){
                 (threads.get(i)).join();
             }
             long end = System.nanoTime();
             long elapsedTime = end-start;
-            logger.info(String.format("multi_node_multi_thread.model.Grid solved in %f milliseconds.", elapsedTime/1e6));
-        } catch (IOException e) {
-            logger.error(String.format("Unable to establish connection to port %d, ex, %s. Client exits", portNumber, e.toString()));
-        } catch (ClassNotFoundException e) {
-            logger.error(String.format("Unable to retrieve object from the socket, ex, %s. Client exits.", e.toString()));
+            logger.info(String.format("Grid solved in %f milliseconds.", elapsedTime/1e6));
         } catch (InterruptedException e) {
-            logger.error(String.format("Client is interrupted, ex, %s.", e.toString()));
+            logger.error(String.format("Client [%s] has been interrupted, ex, %s", id, e.toString()));
         }
     }
 }
