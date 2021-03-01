@@ -325,7 +325,7 @@ public class Grid implements Serializable {
                 List<Integer> values = elem.getValue();
                 combinedRowValues.addAll(values);
             }
-            if(combinedRowValues.size()!=9){
+            if(combinedRowValues.size() != this.dim){
                 logger.debug("Found grid in fringe with row with incomplete set of possible values.");
                 return true;
             }
@@ -339,7 +339,7 @@ public class Grid implements Serializable {
                 List<Integer> values = elem.getValue();
                 combinedColValues.addAll(values);
             }
-            if (combinedColValues.size() !=9 ){
+            if (combinedColValues.size() != this.dim ){
                 logger.debug("Found grid in fringe with column with incomplete set of possible values.");
                 return true;
             }
@@ -354,7 +354,7 @@ public class Grid implements Serializable {
                     List<Integer> values = elem.getValue();
                     combinedSubGridValues.addAll(values);
                 }
-                if(combinedSubGridValues.size()!=9){
+                if(combinedSubGridValues.size() != this.dim){
                     logger.debug("Found grid in fringe with subgrid with incomplete set of possible values.");
                     return true;
                 }

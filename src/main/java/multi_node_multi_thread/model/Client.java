@@ -21,7 +21,7 @@ public class Client {
     private static Logger logger = LogManager.getLogger(Client.class);
 
     public static void main(String[] args) {
-        int portNumber = Integer.parseInt(args[1]);
+        int portNumber = Integer.parseInt(args[0]);
         String id = UUID.randomUUID().toString();
         try {
             BlockingQueue<Grid> fringeProposed = new ArrayBlockingQueue<>(Constants.SOLVER_FRINGE_MAX_SIZE);
@@ -29,16 +29,18 @@ public class Client {
             int numThreads = 4;
             AtomicInteger threads_waiting = new AtomicInteger(0);
             AtomicBoolean complete = new AtomicBoolean((false));
+            AtomicBoolean initialRun = new AtomicBoolean((true));
             long start = System.nanoTime();
             List<Thread> threads = new ArrayList<>();
-            Thread n = (new Thread(new Node(id, portNumber, fringeProposed, fringeApproved , complete)));
+            Node node = new Node(id, portNumber, fringeProposed, fringeApproved, threads_waiting, complete);
+            Thread n = (new Thread(node));
             n.start();
             threads.add(n);
-            Thread t1 = (new Thread(new Solver(1, fringeProposed, fringeApproved, threads_waiting, numThreads, complete, true)));
+            Thread t1 = (new Thread(new Solver(1, fringeProposed, fringeApproved, threads_waiting, numThreads, complete, initialRun, node)));
             t1.start();
             threads.add(t1);
             for (int i = 1; i < numThreads; i++){
-                Thread t = (new Thread(new Solver(i+1, fringeProposed, fringeApproved, threads_waiting, numThreads, complete, false)));
+                Thread t = (new Thread(new Solver(i+1, fringeProposed, fringeApproved, threads_waiting, numThreads, complete, initialRun, node)));
                 t.start();
                 threads.add(t);
             }
@@ -50,6 +52,8 @@ public class Client {
             logger.info(String.format("Grid solved in %f milliseconds.", elapsedTime/1e6));
         } catch (InterruptedException e) {
             logger.error(String.format("Client [%s] has been interrupted, ex, %s", id, e.toString()));
+        } catch (Throwable e) {
+            logger.error(String.format("Unable to setup connection to port %d, ex, %s. Client exits", portNumber, e.toString()));
         }
     }
 }

@@ -1,6 +1,8 @@
 package multi_node_multi_thread.model;
 
-public class ManagerResponse {
+import java.io.Serializable;
+
+public class ManagerResponse implements Serializable {
     private boolean isGridExplored;
     private boolean shouldContinue;
 

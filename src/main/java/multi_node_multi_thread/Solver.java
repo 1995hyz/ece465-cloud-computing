@@ -14,41 +14,43 @@ public class Solver implements Runnable {
     private static final Logger logger = LogManager.getLogger(Solver.class);
     private BlockingQueue<Grid> fringeProposed;
     private BlockingQueue<Grid> fringeApproved;
-    private final AtomicInteger threads_waiting;
+    private final AtomicInteger threadsWaiting;
     private final AtomicBoolean complete;
     private int numThreads;
     private Grid tempGrid;
     private int initialRowIndex = -1;
     private int initialColumnIndex = -1;
-    private boolean initialRun = false;
+    private final AtomicBoolean initialRun;
+    private Node node;
 
     public Solver (int id, BlockingQueue<Grid> fringeProposed, BlockingQueue<Grid> fringeApproved,
-                   AtomicInteger threads_waiting, int numThreads, AtomicBoolean complete, boolean initialRun) {
+                   AtomicInteger threadsWaiting, int numThreads, AtomicBoolean complete, AtomicBoolean initialRun, Node node) {
         this.ID = id;
         this.fringeProposed = fringeProposed;
         this.fringeApproved = fringeApproved;
-        this.threads_waiting = threads_waiting;
+        this.threadsWaiting = threadsWaiting;
         this.numThreads = numThreads;
         this.complete = complete;
         this.initialRun = initialRun;
+        this.node = node;
     }
 
     public void run() {
-        while (threads_waiting.get() < numThreads) {
+        while (threadsWaiting.get() < numThreads) {
             while (this.fringeApproved.isEmpty()) {
                 synchronized (complete){
                     if(complete.get()){
                         break;
                     }
                 }
-                synchronized (threads_waiting) {
-                    threads_waiting.incrementAndGet();
+                synchronized (threadsWaiting) {
+                    threadsWaiting.incrementAndGet();
                     try {
-                        threads_waiting.wait();
+                        threadsWaiting.wait();
                     } catch (InterruptedException e) {
                         logger.info(String.format("Solver %s waiting has been interrupted.", Integer.toString(this.ID)));
                     }
-                    threads_waiting.decrementAndGet();
+                    threadsWaiting.decrementAndGet();
                 }
             }
             synchronized (complete){
@@ -61,13 +63,16 @@ public class Solver implements Runnable {
                 continue;
             }
             String indexKey;
-            if (this.initialRun) {
-                this.generateRandomInitialPair();
-                indexKey = Integer.valueOf(this.initialRowIndex).toString() + Integer.valueOf(this.initialColumnIndex).toString();
-                this.initialRun = false;
-            } else {
-                indexKey = this.tempGrid.findNextIndexToSolveGrid();
+            synchronized (initialRun) {
+                if (initialRun.get()) {
+                    this.generateRandomInitialPair();
+                    indexKey = Integer.valueOf(this.initialRowIndex).toString() + Integer.valueOf(this.initialColumnIndex).toString();
+                    this.initialRun.set(false);
+                } else {
+                    indexKey = this.tempGrid.findNextIndexToSolveGrid();
+                }
             }
+
             Map<String, List<Integer>> possibleValues = this.tempGrid.getPossibleValues();
             List<Integer> values = possibleValues.get(indexKey);
 
@@ -80,10 +85,11 @@ public class Solver implements Runnable {
                 Grid newGrid = this.tempGrid.copy();
                 newGrid.reduce(rowIndex, colIndex, value);
                 logger.debug(String.format("Reduced grid at row %d and col %d given value %d", rowIndex, colIndex, value));
-                if(!newGrid.canPrune()){
+                if(! newGrid.canPrune()){
                     if (newGrid.validateGrid()) {
                         if(newGrid.isSolution()){
                             newGrid.printResult();
+                            this.node.setSolution(newGrid);
                             synchronized (complete){
                                 complete.set(true);
                             }
@@ -94,8 +100,8 @@ public class Solver implements Runnable {
                                 e.printStackTrace();
                             }
                         }
-                        synchronized (threads_waiting){
-                            threads_waiting.notifyAll();
+                        synchronized (threadsWaiting){
+                            threadsWaiting.notifyAll();
                         }
                     }
                 }
@@ -124,6 +130,6 @@ public class Solver implements Runnable {
             Random randomGenerator = new Random();
             initialRowIndex = randomGenerator.nextInt(gridDim);
             initialColumnIndex = randomGenerator.nextInt(gridDim);
-        } while (this.tempGrid.getGridCell(initialRowIndex, initialColumnIndex) > -1);
+        } while (this.tempGrid.getGridCell(initialRowIndex, initialColumnIndex) > 0);
     }
 }

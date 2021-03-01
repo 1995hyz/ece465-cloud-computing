@@ -11,6 +11,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Node implements Runnable {
 
@@ -23,26 +24,35 @@ public class Node implements Runnable {
     private Socket client;
     private ObjectInputStream clientInput;
     private ObjectOutputStream clientOutput;
+    private final AtomicInteger threadsWaiting;
     private final AtomicBoolean complete;
+    private Grid solution;
 
-    public Node(String id, int portNumber, BlockingQueue<Grid> fringeProposed, BlockingQueue<Grid> fringeApproved, AtomicBoolean complete) {
+    public Node(String id, int portNumber, BlockingQueue<Grid> fringeProposed, BlockingQueue<Grid> fringeApproved,
+                AtomicInteger threadsWaiting, AtomicBoolean complete) throws Throwable {
         this.id = id;
         this.portNumber = portNumber;
         this.fringeProposed = fringeProposed;
         this.fringeApproved = fringeApproved;
+        this.threadsWaiting = threadsWaiting;
         this.complete = complete;
+        setUp();
     }
 
     @Override
     public void run() {
         try {
-            setUp();
             // Receive initial setup from the paired manager
             Grid initialGrid = (Grid) this.clientInput.readObject();
             this.fringeApproved.put(initialGrid);
+            synchronized (this.threadsWaiting) {
+                this.threadsWaiting.notifyAll();
+            }
             while (true) {
                 synchronized (complete) {
                     if (complete.get()) {
+                        this.clientOutput.writeObject(this.solution);
+                        this.clientOutput.reset();
                         break;
                     }
                 }
@@ -55,26 +65,55 @@ public class Node implements Runnable {
                     if (! response.isGridExplored()) {
                         logger.debug(String.format("Node [%s] has a grid approved", this.id));
                         this.fringeApproved.put(gridProposed);
+                        synchronized (this.threadsWaiting) {
+                            this.threadsWaiting.notifyAll();
+                        }
+                    } else {
+                        logger.debug(String.format("Node [%s] has a grid rejected", this.id));
                     }
                     if (! response.isShouldContinue()) {
-                        synchronized (complete) {
-                            complete.set(true);
+                        synchronized (this.complete) {
+                            this.complete.set(true);
+                        }
+                        synchronized (this.threadsWaiting) {
+                            this.threadsWaiting.notifyAll();
                         }
                         break;
+                    }
+                } else {
+                    synchronized (this.complete) {
+                        if (this.complete.get()) {
+                            this.clientOutput.writeObject(this.solution);
+                            this.clientOutput.reset();
+                            break;
+                        }
+                    }
+                    synchronized (this.threadsWaiting) {
+                        this.threadsWaiting.incrementAndGet();
+                        try {
+                            this.threadsWaiting.wait();
+                        } catch (InterruptedException e) {
+                            logger.info(String.format("Solver %s waiting has been interrupted.", this.id));
+                        }
+                        this.threadsWaiting.decrementAndGet();
                     }
                 }
             }
             logger.info(String.format("Node [%s] has exited.", this.id));
-
         } catch (IOException e) {
+            e.printStackTrace();
             logger.error(String.format("Unable to establish connection to port %d, ex, %s. Client exits", portNumber, e.toString()));
         } catch (ClassNotFoundException e) {
+            e.printStackTrace();
             logger.error(String.format("Unable to retrieve object from the socket, ex, %s. Client exits.", e.toString()));
         } catch (InterruptedException e) {
+            e.printStackTrace();
             logger.error(String.format("Node is interrupted, ex, %s.", e.toString()));
-        } catch (Throwable e) {
-            logger.error(String.format("Unable to setup connection to port %d, ex, %s. Client exits", portNumber, e.toString()));
         }
+    }
+
+    public void setSolution(Grid solution) {
+        this.solution = solution;
     }
 
     private void setUp() throws Throwable {

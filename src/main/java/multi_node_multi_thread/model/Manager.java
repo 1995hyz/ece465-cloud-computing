@@ -11,8 +11,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.ServerSocket;
+import java.net.SocketException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Manager implements Runnable {
 
@@ -21,14 +23,19 @@ public class Manager implements Runnable {
     private int id;
     private int portNumber;
     private Grid initialGrid;
+    private Grid solution;
     private BlockingQueue<Grid> exploredGrid;
+    private final AtomicInteger threadsWaiting;
     private final AtomicBoolean complete;
+    private int counter = 0;
 
-    public Manager(int id, int portNumber, Grid grid, BlockingQueue<Grid> exploredGrid, AtomicBoolean complete) {
+    public Manager(int id, int portNumber, Grid grid, BlockingQueue<Grid> exploredGrid, AtomicInteger threadsWaiting,
+                   AtomicBoolean complete) {
         this.id = id;
         this.portNumber = portNumber;
         this.exploredGrid = exploredGrid;
         this.initialGrid = grid;
+        this.threadsWaiting = threadsWaiting;
         this.complete = complete;
     }
 
@@ -49,42 +56,82 @@ public class Manager implements Runnable {
             while (true) {
                 synchronized (this.complete) {
                     if (this.complete.get()) {
+                        objectOutputStream.writeObject(new ManagerResponse(true, false));
+                        objectOutputStream.reset();
                         break;
                     }
                 }
-                Grid proposedGrid = (Grid) objectInputStream.readObject();
-                if(proposedGrid.isFilled()) {
-                    synchronized (this.complete) {
-                        this.complete.set(true);
+                try {
 
-                        // Find a solution
-
+                    Grid proposedGrid = (Grid) objectInputStream.readObject();
+                    if (proposedGrid == null) {
+                        continue;
+                    }
+                    if (proposedGrid.isFilled()) {
+                        synchronized (this.complete) {
+                            this.complete.set(true);
+                            // Find a solution
+                            this.solution = proposedGrid;
+                        }
+                        objectOutputStream.writeObject(new ManagerResponse(true, false));
+                        objectOutputStream.reset();
+                        synchronized (this.threadsWaiting) {
+                            threadsWaiting.notifyAll();
+                        }
+                        break;
+                    }
+                    this.counter++;
+                    if (this.exploredGrid.contains(proposedGrid)) {
+                        objectOutputStream.writeObject(new ManagerResponse(true, true));
+                    } else {
+                        objectOutputStream.writeObject(new ManagerResponse(false, true));
+                        try {
+                            if (this.exploredGrid.size() < Constants.EXPLORED_QUEUE_MAX_SIZE) {
+                                this.exploredGrid.put(proposedGrid);
+                            } else {
+                                this.exploredGrid.poll();
+                                this.exploredGrid.put(proposedGrid);
+                            }
+                        } catch (InterruptedException e) {
+                            logger.error(String.format("Manager [%s] fails to add explored grid on to the explored-grid queue." +
+                                    " ex, %s ", id, e.toString()));
+                        }
+                    }
+                    objectOutputStream.reset();
+                } catch (SocketException e) {
+                    logger.error(String.format("Manager [%s] exit with socket exception %s", this.id, e.toString()));
+                    synchronized (this.threadsWaiting) {
+                        this.threadsWaiting.notifyAll();
                     }
                     break;
                 }
-                if (exploredGrid.contains(proposedGrid)) {
-                    objectOutputStream.writeObject(new ManagerResponse(true, true));
-                } else {
-                    objectOutputStream.writeObject(new ManagerResponse(false, true));
-                    try {
-                        if (exploredGrid.size() < Constants.EXPLORED_QUEUE_MAX_SIZE) {
-                            exploredGrid.put(proposedGrid);
-                        } else {
-                            exploredGrid.poll();
-                            exploredGrid.put(proposedGrid);
+                if (this.counter == Constants.MANAGER_COUNTER_MAX_SIZE) {
+                    this.counter = 0;
+                    synchronized (this.threadsWaiting) {
+                        this.threadsWaiting.notifyAll();
+                        this.threadsWaiting.incrementAndGet();
+                        try {
+                            this.threadsWaiting.wait(Constants.MANAGER_WAITING_MAX_TIME_IN_MILISECOND);
+                        } catch (InterruptedException e) {
+                            logger.info(String.format("Manager %s waiting has been interrupted.", Integer.toString(this.id)));
                         }
-                    } catch (InterruptedException e) {
-                        logger.error(String.format("Manager [%s] fails to add explored grid on to the explored-grid queue." +
-                                        " ex, %s ", id, e.toString()));
+                        this.threadsWaiting.decrementAndGet();
                     }
                 }
-                objectOutputStream.reset();
             }
 
+            if (this.solution != null) {
+                logger.info(String.format("Manager [%s] found a solution.", this.id));
+                this.solution.printResult();
+            }
             socket.close();
 
         } catch (IOException | ClassNotFoundException e) {
-            logger.error(String.format("Manager [%s] exit with exception %s", id, e.toString()));
+            e.printStackTrace();
+            logger.error(String.format("Manager [%s] exit with exception %s", this.id, e.toString()));
+            synchronized (this.threadsWaiting) {
+                this.threadsWaiting.notifyAll();
+            }
         }
     }
 }
