@@ -17,3 +17,5 @@ Another speed improvement came from the removal of the explored queue, which was
 
 Lastly, a hard Sudoku puzzle was used to test the performance of this revision versus the first. The results can be found in runtime_stats.txt.
 
+## Revision 2a
+The algorithm was updated to support running in multi-node multi-thread. A "Manager" node and several "Client" nodes can be spawned. The "Manager" node is responsible for sending an initial graph to "Client" nodes and maintain a history of explored graphs. " Each "Client" is responsible for exploring unsolved graphs. To ensure each "Client" isn't working on solving the same graph as other "Client" nodes, before actually starting to work on a graph, the "Client" needs to check with the "Manager" if the graph has been explored or not.
