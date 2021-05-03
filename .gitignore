@@ -1,4 +1,8 @@
 /.idea
-/ece465-cloud-computing.iml
-/.target
 /.DS_Store
+/scrapy-serverless/scraper/node_modules
+/scrapy-serverless/scraper/package.json
+/scrapy-serverless/scraper/package-lock.json
+/scrapy-serverless/scraper/feed
+/scrapy-serverless/scraper/.scrapy
+/scrapy-serverless/scraper/.serverless
