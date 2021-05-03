@@ -25,6 +25,21 @@ provider:
   runtime: python3.6
   lambdaHashingVersion: 20201221
   logRetentionInDays: 1
+  region: us-east-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - { "Fn::GetAtt": ["JobsDynamoDBTable", "Arn" ] }
+  environment:
+    JOBS_TABLE: ${self:custom.tableName}
+
 
 # you can overwrite defaults here
 #  stage: dev
@@ -63,6 +78,11 @@ functions:
     handler: handler.hello
   lambdaScrape:
     handler: launcher.scrape
+    events:
+      - http:
+          path: todos
+          method: get
+          cors: true
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
@@ -131,3 +151,20 @@ custom:
   pythonRequirements:
     slim: true # Omits tests, __pycache__, *.pyc etc from dependencies
     fileName: requirements.txt
+  tableName: jobs-table
+
+resources:
+  Resources:
+    JobsDynamoDBTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: jobId
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: jobId
+            KeyType: HASH
+        BillingMode: "PAY_PER_REQUEST"
+        TableName: ${self:custom.tableName}
