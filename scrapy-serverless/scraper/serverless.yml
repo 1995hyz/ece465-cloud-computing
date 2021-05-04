@@ -80,7 +80,7 @@ functions:
     handler: launcher.scrape
     events:
       - http:
-          path: todos
+          path: crawl
           method: get
           cors: true
 #    The following are a few example events you can configure
