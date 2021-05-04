@@ -29,6 +29,7 @@ def crawl(settings={}, spider_name="job_spider", spider_kwargs={}):
     try:
         spider_key = urlparse(spider_kwargs.get("start_urls")[0]).hostname if spider_kwargs.get(
             "start_urls") else urlparse(spider_cls.start_urls[0]).hostname
+        logging.info("spider_key: " + spider_key)
         if is_in_aws():
             # Lambda can only write to the /tmp folder.
             settings['HTTPCACHE_DIR'] = "/tmp"
@@ -44,5 +45,5 @@ def crawl(settings={}, spider_name="job_spider", spider_kwargs={}):
 
         process.crawl(spider_cls, **spider_kwargs)
         process.start()
-    except Exception:
+    except Exception as e:
         logging.exception("Spider or kwargs need start_urls.")
