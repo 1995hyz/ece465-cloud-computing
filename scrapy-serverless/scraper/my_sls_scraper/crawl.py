@@ -2,6 +2,7 @@ import sys
 import imp
 import os
 import logging
+import json
 from urllib.parse import urlparse
 
 from scrapy.spiderloader import SpiderLoader
@@ -17,7 +18,7 @@ def is_in_aws():
     return os.getenv('AWS_EXECUTION_ENV') is not None
 
 
-def crawl(settings={}, spider_name="job_spider", spider_kwargs={}):
+def crawl(settings={}, spider_name="job_spider", spider_kwargs={}, event={}):
     project_settings = get_project_settings()
     spider_loader = SpiderLoader(project_settings)
 
@@ -27,8 +28,11 @@ def crawl(settings={}, spider_name="job_spider", spider_kwargs={}):
     feed_format = "json"
 
     try:
-        spider_key = urlparse(spider_kwargs.get("start_urls")[0]).hostname if spider_kwargs.get(
-            "start_urls") else urlparse(spider_cls.start_urls[0]).hostname
+        #spider_key = urlparse(spider_kwargs.get("start_urls")[0]).hostname if spider_kwargs.get(
+        #    "start_urls") else urlparse(spider_cls.start_urls[0]).hostname
+        request_body = json.loads(event['body'])
+        # Set the crawling URL here
+        spider_key = request_body['crawlUrl']
         logging.info("spider_key: " + spider_key)
         if is_in_aws():
             # Lambda can only write to the /tmp folder.

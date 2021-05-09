@@ -1,14 +1,22 @@
 import sys
 import json
+import logging
+import json
 
 from my_sls_scraper.crawl import crawl
 
 
 def scrape(event={}, context={}):
-    crawl()
+    request_body = json.loads(event['body'])
+    crawl(event=event)
     response = {
         "statusCode": 200,
-        "body": "Scrape succeed!"
+        "headers": {
+            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "OPTIONS, POST, GET"
+        },
+        "body": "Starting to scrape " + request_body['crawlUrl'] + "..."
     }
 
     return response
