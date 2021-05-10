@@ -5,15 +5,16 @@ class MainPage extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            crawlUrl: "",
+            crawlUrl: "https://scrapy.org",
             crawlAmount: "100"
         };
-        Axios.defaults.baseURL = "https://fg5o99zxb4.execute-api.us-east-1.amazonaws.com/dev";
+        // Set the correct baseURL once deploying the infrastructure to aws via serverless framework
+        Axios.defaults.baseURL = "https://3i9k6rs7o3.execute-api.us-east-1.amazonaws.com/dev";
     }
 
-/*    onClickCrawlHandler = () => {
+    onClickCrawlHandler = () => {
         if (this.validateInput()) {
-            const url = this.apiPrefix + "";
+            const url = "crawl";
             const data = {
                 "crawlUrl": this.state.crawlUrl,
                 "crawlAmount": this.state.crawlAmount
@@ -21,7 +22,7 @@ class MainPage extends Component {
             Axios.post(url, data)
                 .then(res => {
                     if(res.status === 200) {
-
+                        console.log(res);
                     }
                 })
                 .catch(err => {
@@ -30,17 +31,6 @@ class MainPage extends Component {
         } else {
 
         }
-    };*/
-
-    onClickCrawlHandler = () => {
-        const url = "crawl";
-        Axios.get(url)
-            .then(res => {
-                console.log(res);
-            })
-            .catch(err => {
-                console.log(err);
-            });
     };
 
     handleInput = (event) => {
