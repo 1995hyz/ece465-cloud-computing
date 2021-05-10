@@ -7,7 +7,8 @@ from my_sls_scraper.crawl import crawl
 
 
 def scrape(event={}, context={}):
-    request_body = json.loads(event['body'])
+    request_body = event['body']
+    print("*** Receive request body: " + str(request_body) + " ***")
     crawl(event=event)
     response = {
         "statusCode": 200,

@@ -3,7 +3,6 @@ import imp
 import os
 import logging
 import json
-from urllib.parse import urlparse
 
 from scrapy.spiderloader import SpiderLoader
 from scrapy.crawler import CrawlerProcess
@@ -30,8 +29,8 @@ def crawl(settings={}, spider_name="job_spider", spider_kwargs={}, event={}):
     try:
         #spider_key = urlparse(spider_kwargs.get("start_urls")[0]).hostname if spider_kwargs.get(
         #    "start_urls") else urlparse(spider_cls.start_urls[0]).hostname
-        request_body = json.loads(event['body'])
-        # Set the crawling URL here
+        request_body = event['body']
+        # TODO: We need to set the start_urls with the crawling URL somewhere, right now it is hard coded in job_spider.py
         spider_key = request_body['crawlUrl']
         logging.info("spider_key: " + spider_key)
         if is_in_aws():
