@@ -84,6 +84,15 @@ functions:
           method: post
           cors: true
           async: true
+          timeout: 30
+  searchResult:
+    handler: searcher.search
+    events:
+      - http:
+          path: search
+          method: get
+          cors: true
+          timeout: 30
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
@@ -140,6 +149,7 @@ package:
   include:
     - handler.py
     - launcher.py
+    - searcher.py
     - my_sls_scraper/**
     - scrapy.cfg
   exclude:

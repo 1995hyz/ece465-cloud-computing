@@ -9,6 +9,7 @@ from itemadapter import ItemAdapter
 import os
 import logging
 import boto3
+import datetime
 
 
 class MySlsScraperPipeline:
@@ -31,6 +32,7 @@ class MySlsScraperPipeline:
        self.client.put_item(
            TableName=self.JOBS_TABLE,
            Item={
-               'jobId': {'S': url}
+               'jobId': {'S': url},
+               'entryTime': {'S': datetime.datetime.now(datetime.timezone.utc).isoformat()}
            }
        )
