@@ -6,10 +6,12 @@ class MainPage extends Component {
         super(props);
         this.state = {
             crawlUrl: "https://scrapy.org",
-            crawlAmount: "100"
+            crawlAmount: "100",
+            fromDate: "5/10/2021",
+            toDate: "5/11/2021"
         };
         // Set the correct baseURL once deploying the infrastructure to aws via serverless framework
-        Axios.defaults.baseURL = "https://3i9k6rs7o3.execute-api.us-east-1.amazonaws.com/dev";
+        Axios.defaults.baseURL = "https://vhztunt4wk.execute-api.us-east-1.amazonaws.com/dev";
     }
 
     onClickCrawlHandler = () => {
@@ -33,6 +35,12 @@ class MainPage extends Component {
         }
     };
 
+/*    onClickSearchHandler = () => {
+        try {
+            let selectedFromDate = new Date()
+        }
+    };*/
+
     handleInput = (event) => {
         let value = event.target.value;
         let name = event.target.name;
@@ -49,19 +57,38 @@ class MainPage extends Component {
 
     render() {
         return <div>
-            <input
-                type="text"
-                name="crawlUrl"
-                value={this.state.crawlUrl}
-                onChange={this.handleInput}
-            />
-            <input
-                type="text"
-                name="crawlAmount"
-                value={this.state.crawlAmount}
-                onChange={this.handleInput}
-            />
-            <button onClick={this.onClickCrawlHandler}>Crawl</button>
+            <div>
+                <input
+                    type="text"
+                    name="crawlUrl"
+                    value={this.state.crawlUrl}
+                    onChange={this.handleInput}
+                />
+                <input
+                    type="text"
+                    name="crawlAmount"
+                    value={this.state.crawlAmount}
+                    onChange={this.handleInput}
+                />
+                <button onClick={this.onClickCrawlHandler}>Crawl</button>
+            </div>
+            <div>
+                <label>From date:</label>
+                <input
+                    type="text"
+                    name="fromDate"
+                    value={this.state.fromDate}
+                    onChange={this.handleInput}
+                />
+                <label>To date:</label>
+                <input
+                    type="text"
+                    name="toDate"
+                    value={this.state.toDate}
+                    onChange={this.handleInput}
+                />
+                <button>Search</button>
+            </div>
         </div>
     }
 }
