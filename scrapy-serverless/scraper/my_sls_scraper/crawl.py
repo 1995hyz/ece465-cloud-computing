@@ -30,9 +30,8 @@ def crawl(settings={}, spider_name="job_spider", spider_kwargs={}, event={}):
         #spider_key = urlparse(spider_kwargs.get("start_urls")[0]).hostname if spider_kwargs.get(
         #    "start_urls") else urlparse(spider_cls.start_urls[0]).hostname
         request_body = event['body']
-        # TODO: We need to set the start_urls with the crawling URL somewhere, right now it is hard coded in job_spider.py
         spider_key = request_body['crawlUrl']
-        logging.info("spider_key: " + spider_key)
+        print("spider_key: " + spider_key)
         if is_in_aws():
             # Lambda can only write to the /tmp folder.
             settings['HTTPCACHE_DIR'] = "/tmp"
@@ -45,8 +44,8 @@ def crawl(settings={}, spider_name="job_spider", spider_kwargs={}, event={}):
         settings['FEED_FORMAT'] = feed_format
 
         process = CrawlerProcess({**project_settings, **settings})
-
-        process.crawl(spider_cls, **spider_kwargs)
-        process.start()
+        print("STARTING CRAWL")
+        process.crawl(spider_cls, start_url=spider_key)
+        process.start(stop_after_crawl=False)
     except Exception as e:
         logging.exception("Spider or kwargs need start_urls.")

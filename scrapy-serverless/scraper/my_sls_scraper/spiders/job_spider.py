@@ -6,8 +6,13 @@ from w3lib.html import remove_tags
 class JobSpider(CrawlSpider):
     name = "job_spider"
 
-    start_urls = ["https://scrapy.org"]
-    allowed_domains = ["scrapy.org"]
+    def __init__(self, start_url, *args, **kwargs):
+        super(JobSpider, self).__init__(*args, **kwargs)
+        self.start_urls = [start_url]
+        print('INITIALIZED WITH START URL: ' + start_url)
+
+    #start_urls=_start_urls
+    #allowed_domains = ["scrapy.org"]
     rules = [  # Get all links on start url
         Rule(
             link_extractor=LinkExtractor(
