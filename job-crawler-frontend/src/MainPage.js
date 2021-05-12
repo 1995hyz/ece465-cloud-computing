@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Axios from "axios";
+import "./css/MainPageStyles.css"
 
 class MainPage extends Component {
     constructor(props) {
@@ -8,7 +9,15 @@ class MainPage extends Component {
             crawlUrl: "https://scrapy.org",
             crawlAmount: "100",
             fromDate: "5/10/2021",
-            toDate: "5/11/2021"
+            toDate: "5/11/2021",
+            jobTitle: "",
+            country: "",
+            description: "",
+            searchInputError: "",
+            crawlError: "",
+            searchResult: [],
+            searchRequestError: "",
+            searchResultError: ""
         };
         // Set the correct baseURL once deploying the infrastructure to aws via serverless framework
         Axios.defaults.baseURL = "https://vhztunt4wk.execute-api.us-east-1.amazonaws.com/dev";
@@ -23,7 +32,7 @@ class MainPage extends Component {
             };
             Axios.post(url, data)
                 .then(res => {
-                    if(res.status === 200) {
+                    if (res.status === 200) {
                         console.log(res);
                     }
                 })
@@ -35,11 +44,46 @@ class MainPage extends Component {
         }
     };
 
-/*    onClickSearchHandler = () => {
+    onClickSearchHandler = () => {
         try {
-            let selectedFromDate = new Date()
+            let selectedFromDate = new Date(this.state.fromDate);
+            let selectedToDate = new Date(this.state.toDate);
+            this.validateDate(selectedFromDate);
+            this.validateDate(selectedToDate);
+            const url = "search";
+            const data = {
+                "jobTitle": this.state.jobTitle,
+                "country": this.state.country,
+                "description": this.state.description,
+                "fromDate": selectedFromDate.toISOString(),
+                "toDate": selectedToDate.toISOString()
+            }
+            Axios.post(url, data)
+                .then(res => {
+                    if (res.status === 200) {
+                        this.setState({searchResult: res.data});
+                    } else  {
+                        this.setState({searchResultError: res.data});
+                    }
+                })
+                .catch(err => {
+                    this.setState({searchRequestError: err.toString});
+                })
+        } catch (error) {
+            this.setState({searchInputError: error.toString});
+            console.log(error.toString());
         }
-    };*/
+    };
+
+    validateDate = (day) => {
+        if (! (day instanceof Date && !isNaN(day))) {
+            this.setState(prevState => {
+                return {
+                    ...prevState, searchInputError: "Date input is not valid..."
+                };
+            });
+        }
+    }
 
     handleInput = (event) => {
         let value = event.target.value;
@@ -58,12 +102,14 @@ class MainPage extends Component {
     render() {
         return <div>
             <div>
+                <label>Url:</label>
                 <input
                     type="text"
                     name="crawlUrl"
                     value={this.state.crawlUrl}
                     onChange={this.handleInput}
                 />
+                <label>Size:</label>
                 <input
                     type="text"
                     name="crawlAmount"
@@ -73,6 +119,27 @@ class MainPage extends Component {
                 <button onClick={this.onClickCrawlHandler}>Crawl</button>
             </div>
             <div>
+                <label>Job title:</label>
+                <input
+                    type="text"
+                    name="jobTitle"
+                    value={this.state.jobTitle}
+                    onChange={this.handleInput}
+                />
+                <label>Country</label>
+                <input
+                    type="text"
+                    name="country"
+                    value={this.state.country}
+                    onChange={this.handleInput}
+                />
+                <label>Description</label>
+                <input
+                    type="text"
+                    name="description"
+                    value={this.state.description}
+                    onChange={this.handleInput}
+                />
                 <label>From date:</label>
                 <input
                     type="text"
@@ -87,7 +154,19 @@ class MainPage extends Component {
                     value={this.state.toDate}
                     onChange={this.handleInput}
                 />
-                <button>Search</button>
+                <button onClick={this.onClickSearchHandler}>Search</button>
+            </div>
+            <div>
+                <p>{this.state.searchInputError}</p>
+            </div>
+            <div>
+                <ul>
+                    {
+                        this.state.searchResult.map(entry => {
+                            return <li>{entry}</li>
+                        })
+                    }
+                </ul>
             </div>
         </div>
     }
