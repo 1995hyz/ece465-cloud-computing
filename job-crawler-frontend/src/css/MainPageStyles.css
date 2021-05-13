@@ -3,3 +3,22 @@ div {
     background-color: #f2f2f2;
     padding: 20px;
 }
+
+#jobs {
+    font-family: Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+#jobs td, #jobs th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+#jobs th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #4CAF50;
+    color: white;
+}

@@ -11,7 +11,7 @@ class MainPage extends Component {
             fromDate: "5/10/2021",
             toDate: "5/11/2021",
             jobTitle: "",
-            country: "",
+            company: "",
             description: "",
             searchInputError: "",
             crawlError: "",
@@ -20,7 +20,7 @@ class MainPage extends Component {
             searchResultError: ""
         };
         // Set the correct baseURL once deploying the infrastructure to aws via serverless framework
-        Axios.defaults.baseURL = "https://vhztunt4wk.execute-api.us-east-1.amazonaws.com/dev";
+        Axios.defaults.baseURL = "https://sj41wrtjy2.execute-api.us-east-1.amazonaws.com/dev";
     }
 
     onClickCrawlHandler = () => {
@@ -53,17 +53,19 @@ class MainPage extends Component {
             const url = "search";
             const data = {
                 "jobTitle": this.state.jobTitle,
-                "country": this.state.country,
+                "company": this.state.company,
                 "description": this.state.description,
                 "fromDate": selectedFromDate.toISOString(),
                 "toDate": selectedToDate.toISOString()
-            }
+            };
+            console.log(data);
             Axios.post(url, data)
                 .then(res => {
                     if (res.status === 200) {
                         this.setState({searchResult: res.data});
                     } else  {
                         this.setState({searchResultError: res.data});
+                        console.log(res.data);
                     }
                 })
                 .catch(err => {
@@ -83,7 +85,7 @@ class MainPage extends Component {
                 };
             });
         }
-    }
+    };
 
     handleInput = (event) => {
         let value = event.target.value;
@@ -126,11 +128,11 @@ class MainPage extends Component {
                     value={this.state.jobTitle}
                     onChange={this.handleInput}
                 />
-                <label>Country</label>
+                <label>Company</label>
                 <input
                     type="text"
-                    name="country"
-                    value={this.state.country}
+                    name="company"
+                    value={this.state.company}
                     onChange={this.handleInput}
                 />
                 <label>Description</label>
@@ -160,13 +162,26 @@ class MainPage extends Component {
                 <p>{this.state.searchInputError}</p>
             </div>
             <div>
-                <ul>
+                <table id="jobs">
+                    <tr>
+                        <th>Title</th>
+                        <th>Company</th>
+                        <th>Description</th>
+                        <th>Salary</th>
+                        <th>Locality</th>
+                    </tr>
                     {
                         this.state.searchResult.map(entry => {
-                            return <li>{entry}</li>
+                            return <tr>
+                                <th>{entry["Title"]["S"]}</th>
+                                <th>{entry["Company"]["S"]}</th>
+                                <th>{entry["Description"]["S"]}</th>
+                                <th>{entry["Salary"]["S"]}</th>
+                                <th>{entry["Locality"]["S"]}</th>
+                            </tr>
                         })
                     }
-                </ul>
+                </table>
             </div>
         </div>
     }
