@@ -13,6 +13,7 @@ class MainPage extends Component {
             jobTitle: "",
             company: "",
             description: "",
+            crawlMessage: "",
             searchInputError: "",
             crawlError: "",
             searchResult: [],
@@ -30,6 +31,7 @@ class MainPage extends Component {
                 "crawlUrl": this.state.crawlUrl,
                 "crawlAmount": this.state.crawlAmount
             };
+            this.setState({crawlMessage: "Sent crawling request " + this.state.crawlUrl});
             Axios.post(url, data)
                 .then(res => {
                     if (res.status === 200) {
@@ -119,6 +121,9 @@ class MainPage extends Component {
                     onChange={this.handleInput}
                 />
                 <button onClick={this.onClickCrawlHandler}>Crawl</button>
+            </div>
+            <div>
+                <p>{this.state.crawlMessage}</p>
             </div>
             <div>
                 <label>Job title:</label>
