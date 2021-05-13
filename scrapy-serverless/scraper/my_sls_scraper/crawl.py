@@ -43,10 +43,10 @@ def crawl(settings={}, spider_name="job_spider", spider_kwargs={}, event={}):
 
         settings['FEED_URI'] = feed_uri
         settings['FEED_FORMAT'] = feed_format
-        settings['CLOSESPIDER_PAGECOUNT'] = crawl_amount
+        #settings['CLOSESPIDER_PAGECOUNT'] = crawl_amount
         process = CrawlerProcess({**project_settings, **settings})
         print("STARTING CRAWL")
-        process.crawl(spider_cls, start_url=spider_key)
+        process.crawl(spider_cls, start_url=spider_key, page_limit=crawl_amount)
         process.start(stop_after_crawl=False)
     except Exception as e:
         logging.exception("Spider or kwargs need start_urls.")

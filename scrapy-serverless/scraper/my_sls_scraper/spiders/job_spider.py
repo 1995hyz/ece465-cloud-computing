@@ -9,13 +9,17 @@ from bs4 import BeautifulSoup
 class JobSpider(CrawlSpider):
     name = "job_spider"
 
-    def __init__(self, start_url, *args, **kwargs):
+    def __init__(self, start_url, page_limit, *args, **kwargs):
         super(JobSpider, self).__init__(*args, **kwargs)
         self.start_urls = [start_url]
+        self.custom_settings = {
+            'CLOSESPIDER_PAGECOUNT': page_limit
+        }
         print('INITIALIZED WITH START URL: ' + start_url)
 
     #start_urls=_start_urls
     #allowed_domains = ["scrapy.org"]
+
     rules = [  # Get all links on start url
         Rule(
             link_extractor=LinkExtractor(
