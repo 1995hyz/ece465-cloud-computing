@@ -1,11 +1,11 @@
 import random
-import logging
 import json
 
 from my_sls_scraper.crawl import crawl
 
-CRAWL_LIST = ["https://scrapy.org/", "https://scrapy.org/"]
-DEFAULT_CRAWL_NUMBER = 20
+CRAWL_LIST = ["https://www.indeed.com/jobs?q=software+engineer&l=New+York%2C+NY",
+              "https://careers.vmware.com/main/jobs/R2016231?lang=en-us"]
+DEFAULT_CRAWL_NUMBER = 2
 
 
 def scrape(event={}, context={}):
