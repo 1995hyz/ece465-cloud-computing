@@ -31,6 +31,7 @@ def crawl(settings={}, spider_name="job_spider", spider_kwargs={}, event={}):
         #    "start_urls") else urlparse(spider_cls.start_urls[0]).hostname
         request_body = event['body']
         spider_key = request_body['crawlUrl']
+        crawl_amount = request_body['crawlAmount']
         print("spider_key: " + spider_key)
         if is_in_aws():
             # Lambda can only write to the /tmp folder.
@@ -42,7 +43,7 @@ def crawl(settings={}, spider_name="job_spider", spider_kwargs={}, event={}):
 
         settings['FEED_URI'] = feed_uri
         settings['FEED_FORMAT'] = feed_format
-
+        settings['CLOSESPIDER_PAGECOUNT'] = crawl_amount
         process = CrawlerProcess({**project_settings, **settings})
         print("STARTING CRAWL")
         process.crawl(spider_cls, start_url=spider_key)
