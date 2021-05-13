@@ -78,20 +78,22 @@ functions:
     handler: handler.hello
   lambdaScrape:
     handler: launcher.scrape
-    timeout: 30
+    timeout: 60
     events:
       - http:
           path: crawl
           method: post
           cors: true
           async: true
+      - eventBridge:
+          schedule: rate(20 minutes)
   searchResult:
     handler: searcher.search
-    timeout: 30
+    timeout: 60
     events:
       - http:
           path: search
-          method: get
+          method: post
           cors: true
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events

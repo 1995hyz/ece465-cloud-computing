@@ -18,21 +18,24 @@ class MySlsScraperPipeline:
         self.client = boto3.client('dynamodb')
 
     def process_item(self, item, spider):
-        response_item = {
-            "header": str(item["header"]),
-            "url": str(item["url"])
-        }
-        logging.info("****" + str(response_item) + "****")
+        logging.info("****" + str(item) + "****")
         self.create_job_entry(item)
         return item
 
     def create_job_entry(self, item):
-       header = str(item["header"])
-       url = str(item["url"])
-       self.client.put_item(
-           TableName=self.JOBS_TABLE,
-           Item={
-               'jobId': {'S': url},
-               'entryTime': {'S': datetime.datetime.now(datetime.timezone.utc).isoformat()}
-           }
-       )
+        print("UPLOADING TO DATABASE")
+        self.client.put_item(
+            TableName=self.JOBS_TABLE,
+            Item={
+                'jobId': {'S': item['Url']},
+                'Title': {'S': item['Title']},
+                'Company': {'S': item['Company']},
+                'Locality': {'S': item['Locality']},
+                'Region': {'S': item['Region']},
+                'Country': {'S': item['Country']},
+                'Date_Posted': {'S': item['Date_Posted']},
+                'Description': {'S': item['Description']},
+                'Salary': {'S': item['Salary']},
+                'entryTime': {'S': datetime.datetime.now(datetime.timezone.utc).isoformat()}
+            }
+        )

@@ -3,10 +3,18 @@
 # See documentation in:
 # https://docs.scrapy.org/en/latest/topics/items.html
 
-import scrapy
+from scrapy import Item, Field
 
 
-class MySlsScraperItem(scrapy.Item):
+class JobItem(Item):
     # define the fields for your item here like:
-    # name = scrapy.Field()
+    Url = Field()
+    Title = Field()
+    Company = Field()
+    Locality = Field()
+    Region = Field()
+    Country = Field()
+    Date_Posted = Field()
+    Description = Field()
+    Salary = Field()
     pass
