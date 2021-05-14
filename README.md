@@ -2,7 +2,7 @@
 
 This project is a web crawler using the Scrapy Python framework to scrape job postings from career websites. It is implemented as a serverless application hosted etnriely on AWS. 
 
-Video Presentation:
+Video Presentation:https://youtu.be/1p92pJH_TqI
 
 Slide Deck: https://docs.google.com/presentation/d/1yd5OlCOemNr5vCchp0f0nfdybKGMOZ9cq3WRSKdTeTc/edit?usp=sharing
 
