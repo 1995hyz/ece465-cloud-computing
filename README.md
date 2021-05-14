@@ -21,7 +21,7 @@ We use the Serverless framework to deploy our back-end code. An API Gateway can 
 
 The front end is hosted on Amplify. After the serverless deployment returns the ID of the API Gateway, the ID is plugged into the front end code so that it can trigger the gateway and send crawl and fetch requests.
 
-There are two reasons why we decided to use Lambda functions as our backend. First, Lambda functions can scale really well. If we have many users sending requests at the same time, Lambda functions can automatically spawn new instances to handle those requests. We think this scalability is very helpful to our application. Second reason is that, from a running cost perspective, Lambda functions only cost money when they are actually runnin, so this architecture can be inexpensive to run.
+There are two reasons why we decided to use Lambda functions as our backend. First, Lambda functions can scale really well. If we have many users sending requests at the same time, Lambda functions can automatically spawn new instances to handle those requests. We think this scalability is very helpful to our application. Second reason is that, from a running cost perspective, Lambda functions only cost money when they are actually running, so this architecture can be inexpensive to run.
 
 ## Future Work
 Our work fulfilled our initial goals for the project as an MVP, though it is limited to the ability of the spiders to perform the scraping. Future work would entail improving the consistency of the spiders. Also, we would like to develop more comprehensive templates for websites so that our spiders can be applied to a wider range of websites.
