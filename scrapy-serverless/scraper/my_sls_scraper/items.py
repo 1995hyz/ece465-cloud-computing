@@ -17,4 +17,9 @@ class JobItem(Item):
     Date_Posted = Field()
     Description = Field()
     Salary = Field()
+
+    def set_all(self, value):
+        for keys in self.fields.keys():
+            self[keys] = value
+
     pass
