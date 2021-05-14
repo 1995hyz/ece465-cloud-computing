@@ -20,3 +20,6 @@ Since we instruct the spider to obey a website's robot.txt file, they do not con
 We use the Serverless framework to deploy our back-end code. An API Gateway can trigger a 'crawl' Lambda function with a starting URL and max page count; this Lambda function runs a spider and uploads the scraping results to DynamoDB. The API Gateway can also trigger a 'fetch' Lambda function with search filters; this function returns the matching job postings from DynamoDB. We use EventBridge to periodically trigger the 'crawl' Lambda function with a pre-defined set of URL's. 
 
 The front end is hosted on Amplify. After the serverless deployment returns the ID of the API Gateway, the ID is plugged into the front end code so that it can trigger the gateway and send crawl and fetch requests.
+
+## Future Work
+Our work fulfilled our initial goals for the project as an MVP, though it is limited to the ability of the spiders to perform the scraping. Future work would entail improving the consistency of the spiders. Also, we would like to develop more comprehensive templates for websites so that our spiders can be applied to a wider range of websites.
