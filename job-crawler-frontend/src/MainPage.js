@@ -174,6 +174,7 @@ class MainPage extends Component {
                         <th>Description</th>
                         <th>Salary</th>
                         <th>Locality</th>
+                        <th>Job Link</th>
                     </tr>
                     {
                         this.state.searchResult.map(entry => {
@@ -183,6 +184,7 @@ class MainPage extends Component {
                                 <th>{entry["Description"]["S"]}</th>
                                 <th>{entry["Salary"]["S"]}</th>
                                 <th>{entry["Locality"]["S"]}</th>
+                                <th>{entry["jobId"]["S"]}</th>
                             </tr>
                         })
                     }
