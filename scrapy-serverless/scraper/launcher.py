@@ -4,7 +4,7 @@ import json
 from my_sls_scraper.crawl import crawl
 
 # Set your pool of urls here. This pool will be used when the crawler gets triggered automatically
-CRAWL_LIST = ["https://www.indeed.com/jobs?q=software+engineer&l=New+York%2C+NY",
+CRAWL_LIST = ["https://careers.vmware.com/main/jobs/R2016231?lang=en-us",
               "https://careers.vmware.com/main/jobs/R2016231?lang=en-us"]
 DEFAULT_CRAWL_NUMBER = 2
 
