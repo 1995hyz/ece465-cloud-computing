@@ -7,7 +7,7 @@ Video Presentation:
 Slide Deck: https://docs.google.com/presentation/d/1yd5OlCOemNr5vCchp0f0nfdybKGMOZ9cq3WRSKdTeTc/edit?usp=sharing
 
 ## Usage
-The crawler can be used to mass fetch job postings from career websites, such as Indeed.com, given a starting link and present relevant data from each posting on the frontend. A front end was built to display the scraping results in a table. A search bar can be used to filter the query based on job title, company, job description, and date range of when the posting was entered into the database. A separate crawler runs in the background periodically to scrape data from pre-set URLs to provide data to users who do not provide a URL of their own to parse.
+The crawler can be used to mass fetch job postings from career websites, such as Indeed.com, given a starting link and present relevant data from each posting on the frontend. A front end was built to display the scraping results in a table. A search bar can be used to filter the query based on job title, company, job description, and date range of when the posting was entered into the database. A separate crawler runs in the background periodically to scrape data from pre-set URLs to provide data to users who do not provide a URL of their own to parse. NOTE: Many websites have restricted policies on what web pages can be crawled. It is the users' responsiblility to find out such policy on each website. Usually such policy can be found in <website domain>/robots.txt. DO NOT try to use this tool to crawl web-pages without permission. 
 
 ## Scraping
 
